@@ -1,0 +1,46 @@
+# Add this to your .bashrc
+#
+# if [ -d ~/.bashrc.d ]; then
+#     for x in ~/.bashrc.d/* ; do
+#         test -f "$x" || continue
+#         test -x "$x" || continue
+#         . "$x"
+#     done
+# fi
+
+platform='unknown'
+unamestr=`uname`
+if [[ "$unamestr" == 'Linux' ]]; then
+   platform='linux'
+elif [[ "$unamestr" == 'Darwin' ]]; then
+   platform='darwin'
+fi
+
+# Add current GIT branch to command prompt
+parse_git_branch() {
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}
+
+# Customize command prompt
+PS1="\u@\[\033[1m\]\[\033[34m\]\h:\[\033[00m\]\w\$(parse_git_branch)\$ "
+
+# Add Dropbox scripts to PATH
+PATH="~/bin:$PATH:~/Dropbox/bin:~/Dropbox/SugarCRM/bin"
+
+# Set up some useful aliases
+alias phpunit='phpunit --colors'
+alias mc=". /usr/share/mc/bin/mc-wrapper.sh"
+
+if [[ $platform == 'linux' ]]; then
+   alias ls='ls --color=auto'
+elif [[ $platform == 'darwin' ]]; then
+   alias ls='ls -G'
+fi
+
+alias ll='ls -l'
+alias patch="patch -p1 --no-backup-if-mismatch"
+
+# Make grep output always colored
+if echo hello|grep --color=auto l >/dev/null 2>&1; then
+  export GREP_OPTIONS='--color=auto'
+fi
