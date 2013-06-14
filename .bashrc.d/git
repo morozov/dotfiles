@@ -1,0 +1,45 @@
+# Detect whether the current directory is a git repository.
+function is_git_repository {
+  git branch > /dev/null 2>&1
+}
+
+# Determine the branch/state information for this git repository.
+function set_git_branch {
+    # Capture the output of the "git status" command.
+    git_status="$(git status 2> /dev/null)"
+
+    # Set color based on clean/staged/dirty.
+    if [[ ${git_status} =~ "working directory clean" ]]; then
+        state="${LIGHT_GREEN}"
+    elif [[ ${git_status} =~ "Changes to be committed" ]]; then
+        state="${LIGHT_YELLOW}"
+    else
+        state="${LIGHT_RED}"
+    fi
+
+    # Get the name of the branch.
+    branch_pattern="^# On branch ([^${IFS}]*)"
+    if [[ ${git_status} =~ ${branch_pattern} ]]; then
+        branch=${BASH_REMATCH[1]}
+    fi
+
+    # Set the final branch string.
+    BRANCH=" (${state}${branch}${COLOR_NONE})"
+}
+
+# Set the full bash prompt.
+function set_bash_prompt () {
+
+    # Set the BRANCH variable.
+    if is_git_repository ; then
+        set_git_branch
+    else
+        BRANCH=''
+    fi
+
+    # Set the bash prompt variable.
+    PS1="\u@\[\033[1m\]\[\033[34m\]\h:\[\033[00m\]\w$BRANCH\$ "
+}
+
+# Tell bash to execute this function just before displaying its prompt.
+PROMPT_COMMAND=set_bash_prompt
