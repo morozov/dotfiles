@@ -19,12 +19,30 @@ function set_git_branch {
 
     # Get the name of the branch.
     branch_pattern="^# On branch ([^${IFS}]*)"
+    remote_pattern="# Your branch is (\S+)"
+    diverge_pattern="# Your branch and (.*) have diverged"
+
     if [[ ${git_status} =~ ${branch_pattern} ]]; then
         branch=${BASH_REMATCH[1]}
     fi
 
+    # add an else if or two here if you want to get more specific
+    if [[ ${git_status} =~ ${remote_pattern} ]]; then
+        if [[ ${BASH_REMATCH[1]} == "ahead" ]]; then
+            remote="${WHITE}↑${COLOR_NONE}"
+        else
+            remote="${WHITE}↓${COLOR_NONE}"
+        fi
+    else
+        remote=""
+    fi
+
+    if [[ ${git_status} =~ ${diverge_pattern} ]]; then
+        remote="${WHITE}↕${COLOR_NONE}"
+    fi
+
     # Set the final branch string.
-    BRANCH=" (${state}${branch}${COLOR_NONE})"
+    BRANCH=" (${state}${branch}${COLOR_NONE}${remote})"
 }
 
 # Set the full bash prompt.
