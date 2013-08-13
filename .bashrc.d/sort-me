@@ -30,7 +30,6 @@ elif [[ $platform == 'darwin' ]]; then
 fi
 
 alias ll='ls -l'
-alias patch="patch -p1 --no-backup-if-mismatch"
 
 # Make grep output always colored
 if echo hello|grep --color=auto l >/dev/null 2>&1; then
