@@ -1,3 +1,3 @@
 alias patch="patch -p1 --no-backup-if-mismatch"
-alias gomango="cd ~/Mango"
-alias gobuild="cd ~/Projects/sugarcrm/public"
+alias gomango="cd $SUGARCRM_MANGO_DIR"
+alias gobuild="cd $SUGARCRM_BUILD_DIR"
