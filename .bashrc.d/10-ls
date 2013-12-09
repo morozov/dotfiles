@@ -1,0 +1,8 @@
+if [[ $platform == 'linux' ]]; then
+   alias ls='ls --color=auto'
+elif [[ $platform == 'darwin' ]]; then
+   alias ls='ls -G'
+fi
+
+alias ll='ls -l'
+alias l='ls'

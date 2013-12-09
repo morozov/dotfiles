@@ -1,0 +1,4 @@
+if [ -x /usr/share/mc/bin/mc-wrapper.sh ]
+then
+    alias mc=". /usr/share/mc/bin/mc-wrapper.sh"
+fi
