@@ -1,0 +1,21 @@
+# Set the full bash prompt.
+function set_bash_prompt () {
+
+    BRANCH=''
+
+    # Check if git prompt snippet is loaded
+    if type is_git_repository > /dev/null 2>&1; then
+        # Set the BRANCH variable.
+        if is_git_repository ; then
+            set_git_branch
+        else
+            BRANCH=''
+        fi
+    fi
+
+    # Set the bash prompt variable.
+    PS1="\u@\[\033[1m\]\[\033[34m\]\h:\[\033[00m\]\w$BRANCH\$ "
+}
+
+# Tell bash to execute this function just before displaying its prompt.
+PROMPT_COMMAND=set_bash_prompt

@@ -44,20 +44,3 @@ function set_git_branch {
     # Set the final branch string.
     BRANCH=" (${state}${branch}${COLOR_NONE}${remote})"
 }
-
-# Set the full bash prompt.
-function set_bash_prompt () {
-
-    # Set the BRANCH variable.
-    if is_git_repository ; then
-        set_git_branch
-    else
-        BRANCH=''
-    fi
-
-    # Set the bash prompt variable.
-    PS1="\u@\[\033[1m\]\[\033[34m\]\h:\[\033[00m\]\w$BRANCH\$ "
-}
-
-# Tell bash to execute this function just before displaying its prompt.
-PROMPT_COMMAND=set_bash_prompt
