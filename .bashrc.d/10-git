@@ -21,24 +21,27 @@ function set_git_branch {
     branch_pattern="On branch ([^${IFS}]*)"
     remote_pattern="Your branch is (\S+)"
     diverge_pattern="Your branch and (.*) have diverged"
-
-    if [[ ${git_status} =~ ${branch_pattern} ]]; then
-        branch=${BASH_REMATCH[1]}
-    fi
+    detached_pattern="HEAD detached at (\S+)"
 
     remote=""
 
-    # add an else if or two here if you want to get more specific
-    if [[ ${git_status} =~ ${remote_pattern} ]]; then
-        if [[ ${BASH_REMATCH[1]} == "ahead" ]]; then
-            remote="${WHITE}↑${COLOR_NONE}"
-        elif [[ ${BASH_REMATCH[1]} == "behind" ]]; then
-            remote="${WHITE}↓${COLOR_NONE}"
-        fi
-    fi
+    if [[ ${git_status} =~ ${branch_pattern} ]]; then
+        branch=${BASH_REMATCH[1]}
 
-    if [[ ${git_status} =~ ${diverge_pattern} ]]; then
-        remote="${WHITE}↕${COLOR_NONE}"
+        # add an else if or two here if you want to get more specific
+        if [[ ${git_status} =~ ${remote_pattern} ]]; then
+            if [[ ${BASH_REMATCH[1]} == "ahead" ]]; then
+                remote="${WHITE}↑${COLOR_NONE}"
+            elif [[ ${BASH_REMATCH[1]} == "behind" ]]; then
+                remote="${WHITE}↓${COLOR_NONE}"
+            fi
+        fi
+
+        if [[ ${git_status} =~ ${diverge_pattern} ]]; then
+            remote="${WHITE}↕${COLOR_NONE}"
+        fi
+    elif [[ ${git_status} =~ ${detached_pattern} ]]; then
+        branch=${BASH_REMATCH[1]}
     fi
 
     # Set the final branch string.
