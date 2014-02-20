@@ -14,7 +14,7 @@ function set_bash_prompt () {
     fi
 
     # Set the bash prompt variable.
-    PS1="\u@\[\033[1m\]\[\033[34m\]\h:\[\033[00m\]\w$BRANCH\$ "
+    PS1="\u@\[\033[1m\]\[\033[34m\]\h:\[\033[00m\]\w$BRANCH\n${LIGHT_YELLOW}↪ ${COLOR_NONE} "
 }
 
 # Tell bash to execute this function just before displaying its prompt.
