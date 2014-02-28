@@ -1,2 +1,3 @@
 export SUGARCRM_MANGO_DIR=/path/to/mango
 export SUGARCRM_BUILD_DIR=/path/to/build
+export SUGARCRM_BACKUP_DIR=/path/to/backups
