@@ -1,0 +1,16 @@
+#!/bin/bash
+
+function sugar_phpunit() {
+    if [ -f phpunit.php ]
+    then
+        PHPUNIT="php phpunit.php"
+    else
+        PHPUNIT="phpunit"
+    fi
+    DATETIME=$(date +"%Y%m%d-%H%M%S")
+    $PHPUNIT --colors --testdox-text "/tmp/phpunit-$DATETIME.log" -d memory_limit=-1 $@
+}
+
+alias phpunit='sugar_phpunit'
+
+export -f sugar_phpunit
