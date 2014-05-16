@@ -1,1 +1,5 @@
-. ~/.phpbrew/bashrc
+if [ -f ~/.phpbrew/bashrc ]
+then
+    export PHPBREW_SET_PROMPT=1
+    . ~/.phpbrew/bashrc
+fi
