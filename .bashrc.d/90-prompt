@@ -2,6 +2,7 @@
 function set_bash_prompt () {
 
     BRANCH=''
+    XDEBUG=''
 
     # Check if git prompt snippet is loaded
     if type is_git_repository > /dev/null 2>&1; then
@@ -13,8 +14,10 @@ function set_bash_prompt () {
         fi
     fi
 
+    [ -z $XDEBUG_CONFIG ] || XDEBUG="${YELLOW} ☢ ${COLOR_NONE}"
+
     # Set the bash prompt variable.
-    PS1="\u@\[\033[1m\]\[\033[34m\]\h:\[\033[00m\]\w$BRANCH\n${LIGHT_YELLOW}↪ ${COLOR_NONE} "
+    PS1="\u@\[\033[1m\]\[\033[34m\]\h:\[\033[00m\]\w$BRANCH${XDEBUG}\n${LIGHT_YELLOW}↪ ${COLOR_NONE} "
 }
 
 # Tell bash to execute this function just before displaying its prompt.
