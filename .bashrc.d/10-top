@@ -1,1 +1,3 @@
 alias top=htop
+alias iftop='sudo iftop'
+alias iotop='sudo iotop'
