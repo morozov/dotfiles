@@ -1,0 +1,1 @@
+alias ssh-tunnel="ssh -N -D 12345"
