@@ -1,0 +1,9 @@
+#!/bin/bash
+
+function xstart() {
+    export XDEBUG_CONFIG="idekey=netbeans-xdebug"
+}
+
+function xstop() {
+    unset XDEBUG_CONFIG
+}
