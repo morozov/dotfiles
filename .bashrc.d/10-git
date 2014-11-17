@@ -45,7 +45,7 @@ function set_git_branch {
     fi
 
     # Yeah, I need PHP version namely in Git repository
-    PHP_VERSION=$(php -r 'echo phpversion();')
+    PHP_VERSION=$(php -r 'echo PHP_VERSION;')
 
     # Set the final branch string.
     BRANCH=" (${state}${branch}${COLOR_NONE}${remote}${LIGHT_GRAY}#${PHP_VERSION}${COLOR_NONE})"
