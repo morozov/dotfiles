@@ -1,5 +1,3 @@
-#!/bin/bash
-
 function sugar_phpunit() {
     if [ -f phpunit.php ]
     then

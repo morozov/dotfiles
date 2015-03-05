@@ -1,5 +1,3 @@
-#!/bin/bash
-
 function git-pr-get-remote() {
     local url=$(git remote -v | grep $1 | grep push | awk '{print $2}')
     if [[ -z $url ]]; then
