@@ -1,7 +1,7 @@
 function sugar_phpunit() {
-    if [ -f phpunit.php ]
+    if [ -e ../vendor/bin/phpunit ]
     then
-        PHPUNIT="php phpunit.php"
+        PHPUNIT="php ../vendor/bin/phpunit"
     else
         PHPUNIT="phpunit"
     fi
