@@ -1,0 +1,1 @@
+PATH=./vendor/bin:$PATH
