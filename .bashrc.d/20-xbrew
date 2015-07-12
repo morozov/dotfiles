@@ -1,0 +1,17 @@
+function xbrew() {
+    if [ $# -ne 1 ]; then
+        echo "Usage: xbrew <version>" >&2
+        return 1;
+    fi
+
+    VERSION=$1
+
+    if [ -z $PHPBREW_HOME ]; then
+        echo "PhpBrew is not installed" >&2
+        return 1;
+    fi
+
+    find "${PHPBREW_HOME}" -name "php-${VERSION}*" -printf '%P\n' \
+      | xargs tar -C "${PHPBREW_HOME}" -cvf - \
+      | gzip -9 > "phpbrew-${VERSION}.tgz"
+}
