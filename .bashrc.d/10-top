@@ -1,3 +1,7 @@
-alias top=htop
+if [ -x /usr/bin/htop ]
+then
+    alias top=htop
+fi
+
 alias iftop='sudo iftop'
 alias iotop='sudo iotop'
