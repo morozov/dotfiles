@@ -1,4 +1,4 @@
-if [ -x /usr/bin/htop ]
+if which htop > /dev/null 2>&1
 then
     alias top=htop
 fi
