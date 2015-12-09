@@ -1,0 +1,14 @@
+if which gtar > /dev/null 2>&1
+then
+    alias tar=gtar
+fi
+
+if [ -d /usr/local/opt/coreutils/libexec/gnubin ]
+then
+    PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+fi
+
+if [ -d /usr/local/opt/gnu-getopt/bin ]
+then
+    PATH="/usr/local/opt/gnu-getopt/bin:$PATH"
+fi
