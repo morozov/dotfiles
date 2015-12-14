@@ -19,7 +19,6 @@ function set_git_branch {
 
     # Get the name of the branch.
     branch_pattern="On branch ([^${IFS}]*)"
-    remote_pattern="Your branch is (\S+)"
     diverge_pattern="Your branch and (.*) have diverged"
     detached_pattern="HEAD detached at (\S+)"
 
@@ -29,7 +28,7 @@ function set_git_branch {
         branch=${BASH_REMATCH[1]}
 
         # add an else if or two here if you want to get more specific
-        if [[ ${git_status} =~ ${remote_pattern} ]]; then
+        if [[ ${git_status} =~ Your[[:space:]]branch[[:space:]]is[[:space:]](ahead|behind) ]]; then
             if [[ ${BASH_REMATCH[1]} == "ahead" ]]; then
                 remote="${WHITE}↑${COLOR_NONE}"
             elif [[ ${BASH_REMATCH[1]} == "behind" ]]; then
