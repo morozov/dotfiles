@@ -1,6 +1,6 @@
 if [ -f ~/.phpbrew/bashrc ]
 then
-    PATH="$PATH:~/.phpbrew/.phpbrew/bin"
+    PATH="$PATH:~/.phpbrew/bin"
     export PHPBREW_SET_PROMPT=1
     . ~/.phpbrew/bashrc
 fi
