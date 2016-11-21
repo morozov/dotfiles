@@ -1,0 +1,9 @@
+if which kubectl > /dev/null 2>&1
+then
+    source <(kubectl completion bash)
+fi
+
+if which minikube > /dev/null 2>&1
+then
+    source <(minikube completion bash)
+fi
