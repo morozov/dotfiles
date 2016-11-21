@@ -1,1 +1,1 @@
-alias phpunit="phpunit --colors --testdox-text /tmp/phpunit-`date +"%Y%m%d-%H%M%S"`.log -d memory_limit=-1"
+alias phpunit="phpunit --colors --columns max --testdox-text /tmp/phpunit-`date +"%Y%m%d-%H%M%S"`.log"
