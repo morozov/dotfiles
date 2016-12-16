@@ -1,4 +1,4 @@
-PATH=../vendor/bin:$PATH
+PATH=../../vendor/bin:../vendor/bin:$PATH
 
 if COMPOSER=$(which composer) > /dev/null 2>&1
 then
