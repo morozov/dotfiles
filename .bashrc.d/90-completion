@@ -1,0 +1,10 @@
+if [ -d ~/.bashrc.d/completion ]; then
+    for x in ~/.bashrc.d/completion/* ; do
+        if [ $(basename "$x") == "README" -a -z "$NO_INSTALL" ]; then
+            continue
+        fi
+
+        . "$x"
+    done
+fi
+
