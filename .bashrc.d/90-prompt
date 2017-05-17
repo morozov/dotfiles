@@ -18,15 +18,15 @@ function set_bash_prompt () {
     fi
 
     if [ $EXIT != 0 ]; then
-        PROMPT_COLOR="${LIGHT_RED}"
+        PROMPT_CHAR="${LIGHT_RED}✗${COLOR_NONE}"
     else
-        PROMPT_COLOR="${LIGHT_YELLOW}"
+        PROMPT_CHAR="${LIGHT_YELLOW}↪${COLOR_NONE}"
     fi
 
     [ -z $XDEBUG_CONFIG ] || XDEBUG="${YELLOW} ☢ ${COLOR_NONE}"
 
     # Set the bash prompt variable.
-    PS1="\u@\[\033[1m\]\[\033[34m\]\h:\[\033[00m\]\w$BRANCH${XDEBUG}\n${PROMPT_COLOR}↪ ${COLOR_NONE} "
+    PS1="\u@\[\033[1m\]\[\033[34m\]\h:\[\033[00m\]\w$BRANCH${XDEBUG}\n${PROMPT_CHAR}  "
 }
 
 # Tell bash to execute this function just before displaying its prompt.
