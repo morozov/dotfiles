@@ -4,5 +4,6 @@ elif [[ $platform == 'darwin' ]]; then
    alias ls='ls -G'
 fi
 
-alias ll='ls -l'
 alias l='ls'
+alias ll='ls -l'
+alias lla='ls -lA'
