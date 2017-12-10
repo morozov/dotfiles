@@ -1,6 +1,5 @@
 if [ -f ~/.phpbrew/bashrc ]
 then
-    PATH="$PATH:~/.phpbrew/bin"
     export PHPBREW_RC_ENABLE=1
     . ~/.phpbrew/bashrc
 fi
