@@ -2,4 +2,5 @@ if [ -d /usr/lib/go-1.10 ]
 then
     export GOPATH=$HOME/.go
     export PATH=$PATH:$GOPATH/bin:/usr/lib/go-1.10/bin
+    export GOROOT=/usr/lib/go-1.10
 fi
