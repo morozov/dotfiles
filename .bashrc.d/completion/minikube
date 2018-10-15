@@ -14,7 +14,7 @@
 # limitations under the License.
 # bash completion for minikube                             -*- shell-script -*-
 
-__debug()
+__minikube_debug()
 {
     if [[ -n ${BASH_COMP_DEBUG_FILE} ]]; then
         echo "$*" >> "${BASH_COMP_DEBUG_FILE}"
@@ -23,13 +23,13 @@ __debug()
 
 # Homebrew on Macs have version 1.3 of bash-completion which doesn't include
 # _init_completion. This is a very minimal version of that function.
-__my_init_completion()
+__minikube_init_completion()
 {
     COMPREPLY=()
     _get_comp_words_by_ref "$@" cur prev words cword
 }
 
-__index_of_word()
+__minikube_index_of_word()
 {
     local w word=$1
     shift
@@ -41,7 +41,7 @@ __index_of_word()
     index=-1
 }
 
-__contains_word()
+__minikube_contains_word()
 {
     local w word=$1; shift
     for w in "$@"; do
@@ -50,9 +50,9 @@ __contains_word()
     return 1
 }
 
-__handle_reply()
+__minikube_handle_reply()
 {
-    __debug "${FUNCNAME[0]}"
+    __minikube_debug "${FUNCNAME[0]}"
     case $cur in
         -*)
             if [[ $(type -t compopt) = "builtin" ]]; then
@@ -76,15 +76,15 @@ __handle_reply()
                 fi
 
                 local index flag
-                flag="${cur%%=*}"
-                __index_of_word "${flag}" "${flags_with_completion[@]}"
+                flag="${cur%=*}"
+                __minikube_index_of_word "${flag}" "${flags_with_completion[@]}"
+                COMPREPLY=()
                 if [[ ${index} -ge 0 ]]; then
-                    COMPREPLY=()
                     PREFIX=""
                     cur="${cur#*=}"
                     ${flags_completion[${index}]}
                     if [ -n "${ZSH_VERSION}" ]; then
-                        # zfs completion needs --flag= prefix
+                        # zsh completion needs --flag= prefix
                         eval "COMPREPLY=( \"\${COMPREPLY[@]/#/${flag}=}\" )"
                     fi
                 fi
@@ -95,7 +95,7 @@ __handle_reply()
 
     # check if we are handling a flag with special work handling
     local index
-    __index_of_word "${prev}" "${flags_with_completion[@]}"
+    __minikube_index_of_word "${prev}" "${flags_with_completion[@]}"
     if [[ ${index} -ge 0 ]]; then
         ${flags_completion[${index}]}
         return
@@ -124,25 +124,34 @@ __handle_reply()
         declare -F __custom_func >/dev/null && __custom_func
     fi
 
-    __ltrim_colon_completions "$cur"
+    # available in bash-completion >= 2, not always present on macOS
+    if declare -F __ltrim_colon_completions >/dev/null; then
+        __ltrim_colon_completions "$cur"
+    fi
+
+    # If there is only 1 completion and it is a flag with an = it will be completed
+    # but we don't want a space after the =
+    if [[ "${#COMPREPLY[@]}" -eq "1" ]] && [[ $(type -t compopt) = "builtin" ]] && [[ "${COMPREPLY[0]}" == --*= ]]; then
+       compopt -o nospace
+    fi
 }
 
 # The arguments should be in the form "ext1|ext2|extn"
-__handle_filename_extension_flag()
+__minikube_handle_filename_extension_flag()
 {
     local ext="$1"
     _filedir "@(${ext})"
 }
 
-__handle_subdirs_in_dir_flag()
+__minikube_handle_subdirs_in_dir_flag()
 {
     local dir="$1"
     pushd "${dir}" >/dev/null 2>&1 && _filedir -d && popd >/dev/null 2>&1
 }
 
-__handle_flag()
+__minikube_handle_flag()
 {
-    __debug "${FUNCNAME[0]}: c is $c words[c] is ${words[c]}"
+    __minikube_debug "${FUNCNAME[0]}: c is $c words[c] is ${words[c]}"
 
     # if a command required a flag, and we found it, unset must_have_one_flag()
     local flagname=${words[c]}
@@ -150,30 +159,33 @@ __handle_flag()
     # if the word contained an =
     if [[ ${words[c]} == *"="* ]]; then
         flagvalue=${flagname#*=} # take in as flagvalue after the =
-        flagname=${flagname%%=*} # strip everything after the =
+        flagname=${flagname%=*} # strip everything after the =
         flagname="${flagname}=" # but put the = back
     fi
-    __debug "${FUNCNAME[0]}: looking for ${flagname}"
-    if __contains_word "${flagname}" "${must_have_one_flag[@]}"; then
+    __minikube_debug "${FUNCNAME[0]}: looking for ${flagname}"
+    if __minikube_contains_word "${flagname}" "${must_have_one_flag[@]}"; then
         must_have_one_flag=()
     fi
 
     # if you set a flag which only applies to this command, don't show subcommands
-    if __contains_word "${flagname}" "${local_nonpersistent_flags[@]}"; then
+    if __minikube_contains_word "${flagname}" "${local_nonpersistent_flags[@]}"; then
       commands=()
     fi
 
     # keep flag value with flagname as flaghash
-    if [ -n "${flagvalue}" ] ; then
-        flaghash[${flagname}]=${flagvalue}
-    elif [ -n "${words[ $((c+1)) ]}" ] ; then
-        flaghash[${flagname}]=${words[ $((c+1)) ]}
-    else
-        flaghash[${flagname}]="true" # pad "true" for bool flag
+    # flaghash variable is an associative array which is only supported in bash > 3.
+    if [[ -z "${BASH_VERSION}" || "${BASH_VERSINFO[0]}" -gt 3 ]]; then
+        if [ -n "${flagvalue}" ] ; then
+            flaghash[${flagname}]=${flagvalue}
+        elif [ -n "${words[ $((c+1)) ]}" ] ; then
+            flaghash[${flagname}]=${words[ $((c+1)) ]}
+        else
+            flaghash[${flagname}]="true" # pad "true" for bool flag
+        fi
     fi
 
     # skip the argument to a two word flag
-    if __contains_word "${words[c]}" "${two_word_flags[@]}"; then
+    if __minikube_contains_word "${words[c]}" "${two_word_flags[@]}"; then
         c=$((c+1))
         # if we are looking for a flags value, don't show commands
         if [[ $c -eq $cword ]]; then
@@ -185,13 +197,13 @@ __handle_flag()
 
 }
 
-__handle_noun()
+__minikube_handle_noun()
 {
-    __debug "${FUNCNAME[0]}: c is $c words[c] is ${words[c]}"
+    __minikube_debug "${FUNCNAME[0]}: c is $c words[c] is ${words[c]}"
 
-    if __contains_word "${words[c]}" "${must_have_one_noun[@]}"; then
+    if __minikube_contains_word "${words[c]}" "${must_have_one_noun[@]}"; then
         must_have_one_noun=()
-    elif __contains_word "${words[c]}" "${noun_aliases[@]}"; then
+    elif __minikube_contains_word "${words[c]}" "${noun_aliases[@]}"; then
         must_have_one_noun=()
     fi
 
@@ -199,42 +211,42 @@ __handle_noun()
     c=$((c+1))
 }
 
-__handle_command()
+__minikube_handle_command()
 {
-    __debug "${FUNCNAME[0]}: c is $c words[c] is ${words[c]}"
+    __minikube_debug "${FUNCNAME[0]}: c is $c words[c] is ${words[c]}"
 
     local next_command
     if [[ -n ${last_command} ]]; then
         next_command="_${last_command}_${words[c]//:/__}"
     else
         if [[ $c -eq 0 ]]; then
-            next_command="_$(basename "${words[c]//:/__}")"
+            next_command="_minikube_root_command"
         else
             next_command="_${words[c]//:/__}"
         fi
     fi
     c=$((c+1))
-    __debug "${FUNCNAME[0]}: looking for ${next_command}"
-    declare -F $next_command >/dev/null && $next_command
+    __minikube_debug "${FUNCNAME[0]}: looking for ${next_command}"
+    declare -F "$next_command" >/dev/null && $next_command
 }
 
-__handle_word()
+__minikube_handle_word()
 {
     if [[ $c -ge $cword ]]; then
-        __handle_reply
+        __minikube_handle_reply
         return
     fi
-    __debug "${FUNCNAME[0]}: c is $c words[c] is ${words[c]}"
+    __minikube_debug "${FUNCNAME[0]}: c is $c words[c] is ${words[c]}"
     if [[ "${words[c]}" == -* ]]; then
-        __handle_flag
-    elif __contains_word "${words[c]}" "${commands[@]}"; then
-        __handle_command
-    elif [[ $c -eq 0 ]] && __contains_word "$(basename "${words[c]}")" "${commands[@]}"; then
-        __handle_command
+        __minikube_handle_flag
+    elif __minikube_contains_word "${words[c]}" "${commands[@]}"; then
+        __minikube_handle_command
+    elif [[ $c -eq 0 ]]; then
+        __minikube_handle_command
     else
-        __handle_noun
+        __minikube_handle_noun
     fi
-    __handle_word
+    __minikube_handle_word
 }
 
 _minikube_addons_configure()
@@ -433,6 +445,131 @@ _minikube_addons()
     noun_aliases=()
 }
 
+_minikube_cache_add()
+{
+    last_command="minikube_cache_add"
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--alsologtostderr")
+    flags+=("--bootstrapper=")
+    two_word_flags+=("-b")
+    flags+=("--log_backtrace_at=")
+    flags+=("--log_dir=")
+    flags+=("--loglevel=")
+    flags+=("--logtostderr")
+    flags+=("--profile=")
+    two_word_flags+=("-p")
+    flags+=("--stderrthreshold=")
+    flags+=("--v=")
+    two_word_flags+=("-v")
+    flags+=("--vmodule=")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_minikube_cache_delete()
+{
+    last_command="minikube_cache_delete"
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--alsologtostderr")
+    flags+=("--bootstrapper=")
+    two_word_flags+=("-b")
+    flags+=("--log_backtrace_at=")
+    flags+=("--log_dir=")
+    flags+=("--loglevel=")
+    flags+=("--logtostderr")
+    flags+=("--profile=")
+    two_word_flags+=("-p")
+    flags+=("--stderrthreshold=")
+    flags+=("--v=")
+    two_word_flags+=("-v")
+    flags+=("--vmodule=")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_minikube_cache_list()
+{
+    last_command="minikube_cache_list"
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--format=")
+    local_nonpersistent_flags+=("--format=")
+    flags+=("--alsologtostderr")
+    flags+=("--bootstrapper=")
+    two_word_flags+=("-b")
+    flags+=("--log_backtrace_at=")
+    flags+=("--log_dir=")
+    flags+=("--loglevel=")
+    flags+=("--logtostderr")
+    flags+=("--profile=")
+    two_word_flags+=("-p")
+    flags+=("--stderrthreshold=")
+    flags+=("--v=")
+    two_word_flags+=("-v")
+    flags+=("--vmodule=")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_minikube_cache()
+{
+    last_command="minikube_cache"
+    commands=()
+    commands+=("add")
+    commands+=("delete")
+    commands+=("list")
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--alsologtostderr")
+    flags+=("--bootstrapper=")
+    two_word_flags+=("-b")
+    flags+=("--log_backtrace_at=")
+    flags+=("--log_dir=")
+    flags+=("--loglevel=")
+    flags+=("--logtostderr")
+    flags+=("--profile=")
+    two_word_flags+=("-p")
+    flags+=("--stderrthreshold=")
+    flags+=("--v=")
+    two_word_flags+=("-v")
+    flags+=("--vmodule=")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
 _minikube_completion()
 {
     last_command="minikube_completion"
@@ -444,6 +581,9 @@ _minikube_completion()
     flags_with_completion=()
     flags_completion=()
 
+    flags+=("--help")
+    flags+=("-h")
+    local_nonpersistent_flags+=("--help")
     flags+=("--alsologtostderr")
     flags+=("--bootstrapper=")
     two_word_flags+=("-b")
@@ -1031,8 +1171,12 @@ _minikube_start()
     flags_with_completion=()
     flags_completion=()
 
+    flags+=("--apiserver-ips=")
+    local_nonpersistent_flags+=("--apiserver-ips=")
     flags+=("--apiserver-name=")
     local_nonpersistent_flags+=("--apiserver-name=")
+    flags+=("--apiserver-names=")
+    local_nonpersistent_flags+=("--apiserver-names=")
     flags+=("--cache-images")
     local_nonpersistent_flags+=("--cache-images")
     flags+=("--container-runtime=")
@@ -1053,8 +1197,14 @@ _minikube_start()
     local_nonpersistent_flags+=("--extra-config=")
     flags+=("--feature-gates=")
     local_nonpersistent_flags+=("--feature-gates=")
+    flags+=("--gpu")
+    local_nonpersistent_flags+=("--gpu")
     flags+=("--host-only-cidr=")
     local_nonpersistent_flags+=("--host-only-cidr=")
+    flags+=("--hyperkit-vpnkit-sock=")
+    local_nonpersistent_flags+=("--hyperkit-vpnkit-sock=")
+    flags+=("--hyperkit-vsock-ports=")
+    local_nonpersistent_flags+=("--hyperkit-vsock-ports=")
     flags+=("--hyperv-virtual-switch=")
     local_nonpersistent_flags+=("--hyperv-virtual-switch=")
     flags+=("--insecure-registry=")
@@ -1075,8 +1225,14 @@ _minikube_start()
     local_nonpersistent_flags+=("--mount-string=")
     flags+=("--network-plugin=")
     local_nonpersistent_flags+=("--network-plugin=")
+    flags+=("--nfs-share=")
+    local_nonpersistent_flags+=("--nfs-share=")
+    flags+=("--nfs-shares-root=")
+    local_nonpersistent_flags+=("--nfs-shares-root=")
     flags+=("--registry-mirror=")
     local_nonpersistent_flags+=("--registry-mirror=")
+    flags+=("--uuid=")
+    local_nonpersistent_flags+=("--uuid=")
     flags+=("--vm-driver=")
     local_nonpersistent_flags+=("--vm-driver=")
     flags+=("--xhyve-disk-driver=")
@@ -1135,6 +1291,36 @@ _minikube_status()
 _minikube_stop()
 {
     last_command="minikube_stop"
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--alsologtostderr")
+    flags+=("--bootstrapper=")
+    two_word_flags+=("-b")
+    flags+=("--log_backtrace_at=")
+    flags+=("--log_dir=")
+    flags+=("--loglevel=")
+    flags+=("--logtostderr")
+    flags+=("--profile=")
+    two_word_flags+=("-p")
+    flags+=("--stderrthreshold=")
+    flags+=("--v=")
+    two_word_flags+=("-v")
+    flags+=("--vmodule=")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_minikube_update-check()
+{
+    last_command="minikube_update-check"
     commands=()
 
     flags=()
@@ -1222,11 +1408,12 @@ _minikube_version()
     noun_aliases=()
 }
 
-_minikube()
+_minikube_root_command()
 {
     last_command="minikube"
     commands=()
     commands+=("addons")
+    commands+=("cache")
     commands+=("completion")
     commands+=("config")
     commands+=("dashboard")
@@ -1243,6 +1430,7 @@ _minikube()
     commands+=("start")
     commands+=("status")
     commands+=("stop")
+    commands+=("update-check")
     commands+=("update-context")
     commands+=("version")
 
@@ -1278,7 +1466,7 @@ __start_minikube()
     if declare -F _init_completion >/dev/null 2>&1; then
         _init_completion -s || return
     else
-        __my_init_completion -n "=" || return
+        __minikube_init_completion -n "=" || return
     fi
 
     local c=0
@@ -1293,7 +1481,7 @@ __start_minikube()
     local last_command
     local nouns=()
 
-    __handle_word
+    __minikube_handle_word
 }
 
 if [[ $(type -t compopt) = "builtin" ]]; then
