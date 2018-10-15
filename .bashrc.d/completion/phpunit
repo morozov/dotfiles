@@ -8,7 +8,7 @@ _phpunit()
 
     local cur="${COMP_WORDS[COMP_CWORD]}"
     local prev="${COMP_WORDS[COMP_CWORD-1]}"
-    local opts="--coverage-clover --coverage-crap4j --coverage-html --coverage-php --coverage-text --coverage-xml --log-junit --log-tap --log-json --testdox-html --testdox-text --filter --testsuite --group --exclude-group --list-groups --test-suffix --report-useless-tests --strict-coverage --disallow-test-output --enforce-time-limit --disallow-todo-tests --process-isolation --no-globals-backup --static-backup --colors --columns --columns --stderr --stop-on-error --stop-on-failure --stop-on-risky --stop-on-skipped --stop-on-incomplete -v --verbose --debug --loader --repeat --tap --testdox --printer --bootstrap -c --configuration --no-configuration --include-path -d -h --help --version"
+    local opts="--coverage-clover --coverage-crap4j --coverage-html --coverage-php --coverage-text --coverage-xml --log-junit --log-tap --log-json --testdox-html --testdox-text --filter --testsuite --group --exclude-group --list-groups --list-suites --list-tests --test-suffix --report-useless-tests --strict-coverage --disallow-test-output --enforce-time-limit --disallow-todo-tests --process-isolation --no-globals-backup --static-backup --colors --columns --columns --stderr --stop-on-defect --stop-on-error --stop-on-failure --stop-on-warning --stop-on-risky --stop-on-skipped --stop-on-incomplete -v --verbose --debug --loader --repeat --tap --testdox --printer --bootstrap -c --configuration --no-configuration --include-path -d -h --help --version"
     local diropts="--coverage-html|--coverage-xml|--include-path"
     local nocompleteopts="--filter|--testsuite|--group|--exclude-group|--test-suffix|--loader|--repeat|--printer|-d|-h|--help|--version"
 
