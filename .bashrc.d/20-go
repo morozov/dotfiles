@@ -1,6 +1,6 @@
-if [ -d /usr/lib/go-1.10 ]
+if [ -d /usr/local/go/bin ]
 then
     export GOPATH=$HOME/.go
-    export PATH=$PATH:$GOPATH/bin:/usr/lib/go-1.10/bin
-    export GOROOT=/usr/lib/go-1.10
+    export PATH=$PATH:$GOPATH/bin:/usr/local/go/bin
+    export GOROOT=/usr/local/go
 fi
