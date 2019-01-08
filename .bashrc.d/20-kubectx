@@ -1,0 +1,4 @@
+if which kubectx > /dev/null 2>&1
+then
+    export KUBECTX_CURRENT_BGCOLOR=$(tput sgr0)
+fi
