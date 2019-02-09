@@ -1,1 +1,1 @@
-PATH="~/bin:$PATH:~/Dropbox/SugarCRM/bin"
+PATH="$HOME/Dropbox/SugarCRM/bin:$PATH"
