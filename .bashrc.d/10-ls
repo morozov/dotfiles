@@ -1,5 +1,5 @@
 if [[ $platform == 'linux' ]]; then
-   alias ls='ls --color=auto --literal'
+   alias ls='ls --color=auto --literal --group-directories-first'
 elif [[ $platform == 'darwin' ]]; then
    alias ls='ls -G'
 fi
