@@ -2,7 +2,8 @@
 function set_bash_prompt () {
 
     local EXIT="$?"
-    local PROMPT=""
+    local PROMPT="\$"
+    local USER="\u"
 
     BRANCH=''
     XDEBUG=''
@@ -17,16 +18,21 @@ function set_bash_prompt () {
         fi
     fi
 
-    if [ $EXIT != 0 ]; then
-        PROMPT_CHAR="${LIGHT_RED}✗${COLOR_NONE}"
+    if [ ${UID} -eq "0" ]; then
+        PROMPT="#"
+        USER="${LIGHT_RED}${USER}${COLOR_NONE}"
+    fi
+
+    if [ $EXIT == 0 ]; then
+        PROMPT="${LIGHT_YELLOW}${PROMPT}${COLOR_NONE}"
     else
-        PROMPT_CHAR="${LIGHT_YELLOW}↪${COLOR_NONE}"
+        PROMPT="${LIGHT_RED}${PROMPT}${COLOR_NONE}"
     fi
 
     [ -z $XDEBUG_CONFIG ] || XDEBUG="${YELLOW} ☢ ${COLOR_NONE}"
 
     # Set the bash prompt variable.
-    PS1="\u@\[\033[1m\]\[\033[34m\]\h:\[\033[00m\]\w$BRANCH${XDEBUG}\n${PROMPT_CHAR}  "
+    PS1="${USER}@\[\033[1m\]\[\033[34m\]\h:\[\033[00m\]\w$BRANCH${XDEBUG}\n${PROMPT} "
 }
 
 # Tell bash to execute this function just before displaying its prompt.
