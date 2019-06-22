@@ -1,2 +1,1 @@
-PATH=./vendor/bin:$PATH
-export COMPOSER_DISABLE_XDEBUG_WARN=1
+PATH=$PATH:vendor/bin

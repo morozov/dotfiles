@@ -1,4 +1,4 @@
-if [ -f ~/.phpbrew/bashrc ]
+if [ -d ~/.phpbrew ]
 then
     export PHPBREW_RC_ENABLE=1
     . ~/.phpbrew/bashrc

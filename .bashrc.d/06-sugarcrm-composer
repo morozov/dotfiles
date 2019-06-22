@@ -1,14 +1,1 @@
-PATH=../../vendor/bin:../vendor/bin:$PATH
 
-if COMPOSER=$(which composer) > /dev/null 2>&1
-then
-    function composer() {
-        local SUFFIX
-        if [ -d sugarcrm ]; then
-            case "$1" in
-                install|update|dump-autoload|dumpautoload) SUFFIX="-d sugarcrm" ;
-            esac
-        fi
-        $COMPOSER $@ $SUFFIX
-    }
-fi

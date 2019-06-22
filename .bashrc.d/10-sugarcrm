@@ -1,3 +1,5 @@
+PATH=../../vendor/bin:../vendor/bin:$PATH
+
 alias patch="patch -p1 --no-backup-if-mismatch"
 alias gomango="cd $SUGARCRM_MANGO_DIR/sugarcrm"
 alias gobuild="cd $SUGARCRM_BUILD_DIR"

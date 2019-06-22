@@ -1,1 +1,1 @@
-CDPATH=.:~/Projects:~/Dropbox/Projects
+CDPATH=.:$HOME:$HOME/Projects:$HOME/Dropbox/Projects
