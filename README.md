@@ -1,11 +1,17 @@
-Add and uncomment the following to your `.bashrc`
+Add the following to your `~/.bashrc`
 
 ```
-# if [ -d ~/.bashrc.d ]; then
-#     for x in ~/.bashrc.d/* ; do
-#         test -f "$x" || continue
-#         test -x "$x" || continue
-#         . "$x"
-#     done
-# fi
+for x in $HOME/.bashrc.d/* ; do
+    test -f "$x" || continue
+    test -x "$x" || continue
+    source "$x"
+done
+```
+
+Or to your `~/.config/fish/config.fish`
+
+```
+for x in $HOME/.fish.d/*.fish
+    source "$x"
+end
 ```

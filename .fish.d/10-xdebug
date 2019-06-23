@@ -1,0 +1,7 @@
+function xstart() {
+    export XDEBUG_CONFIG="idekey=PHPSTORM"
+}
+
+function xstop() {
+    unset XDEBUG_CONFIG
+}
