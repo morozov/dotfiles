@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+function git-pr-get-remote() {
+    local url=$(git remote -v | grep $1 | grep push | awk '{print $2}')
+    if [[ -z $url ]]; then
+        echo "Remote $1 not found" >&2
+        return 1
+    fi
+
+    echo $url
+}
+
+function git-pr-get-param() {
+    git-pr-get-remote $1 | sed "s/.*[/:]\([^/]*\)\/\([^/]*\).git\$/\\${2}/" || return $?
+}
+
+set -eo pipefail
+
+ORIGIN_USER=$(git-pr-get-param origin 1)
+ORIGIN_REPO=$(git-pr-get-param origin 2)
+ORIGIN_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+UPSTREAM_USER=$(git-pr-get-param upstream 1)
+UPSTREAM_BRANCH=${1:-master}
+
+xdg-open "https://github.com/$ORIGIN_USER/$ORIGIN_REPO/compare/$UPSTREAM_USER:$UPSTREAM_BRANCH...$ORIGIN_USER:$ORIGIN_BRANCH" &
