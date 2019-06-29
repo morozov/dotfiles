@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+URL="$1"
+
+FILE_LINE=${URL//editor:\/\//}
+FILE=$(echo $FILE_LINE | cut -f1 -d#)
+LINE=$(echo $FILE_LINE | cut -f2 -d#)
+
+if [[ $LINE ]]; then
+  LINE_ARG="--line $LINE"
+fi
+
+~/opt/php-storm/bin/phpstorm.sh $LINE_ARG "$FILE"
