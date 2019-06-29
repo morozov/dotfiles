@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+branch=$(git rev-parse --abbrev-ref HEAD)
+remote=$(git config --get branch.$branch.remote)
+
+if [ -z $remote ]
+then
+    echo "Remote tracking branch is not specified"
+    return 1
+fi
+
+merge=$(git config --get branch.$branch.merge)
+git reset --hard $remote/${merge/refs\/heads\//}

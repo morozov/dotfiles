@@ -52,21 +52,3 @@ function set_git_branch {
     # Set the final branch string.
     BRANCH=" (${state}${branch}${COLOR_NONE}${remote}${PHP_VERSION})"
 }
-
-function xclean {
-    git reset --hard && git clean -ffd
-}
-
-function xreset {
-    local branch=$(git rev-parse --abbrev-ref HEAD)
-    local remote=$(git config --get branch.$branch.remote)
-
-    if [ -z $remote ]
-    then
-        echo "Remote tracking branch is not specified"
-        return 1
-    fi
-
-    local merge=$(git config --get branch.$branch.merge)
-    git reset --hard $remote/${merge/refs\/heads\//}
-}
