@@ -6,7 +6,7 @@ remote=$(git config --get branch.$branch.remote)
 if [ -z $remote ]
 then
     echo "Remote tracking branch is not specified"
-    return 1
+    exit 1
 fi
 
 merge=$(git config --get branch.$branch.merge)
