@@ -3,5 +3,5 @@ function xstart
 end
 
 function xstop
-    unset XDEBUG_CONFIG
+    set -e XDEBUG_CONFIG
 end
