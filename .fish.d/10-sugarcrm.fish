@@ -5,7 +5,7 @@ alias gomango="cd $SUGARCRM_MANGO_DIR/sugarcrm"
 alias gobuild="cd $SUGARCRM_BUILD_DIR"
 alias gotest="cd $SUGARCRM_BUILD_DIR/tests/\{old\}"
 
-if [ -d "$GOPATH/src/github.com/sugarcrm/multiverse" ]
-    alias multi="cd $GOPATH/src/github.com/sugarcrm/multiverse"
-    set PATH $PATH $GOPATH/src/github.com/sugarcrm/multiverse/tools/bin/linux
+if [ -d "$HOME/Projects/multiverse" ]
+    alias multi="cd $HOME/Projects/multiverse"
+    set PATH $PATH $HOME/Projects/multiverse/tools/bin
 end
