@@ -1,1 +1,1 @@
-set PATH $PATH $HOME/Dropbox/SugarCRM/bin
+set PATH $PATH $HOME/.local/bin $HOME/Dropbox/SugarCRM/bin
