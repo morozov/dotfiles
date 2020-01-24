@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+
+export CFLAGS="-O3 -march=native -pipe"
+
+set -e
+
+. ~/.phpbrew/bashrc
+
+function __help()
+{
+    local program=`basename $0`
+
+    echo "Usage: $program <version>" >&2
+    echo "       $program github:<user>/<repo>[@<ref>][ as <alias>]" >&2
+    echo >&2
+    echo "Examples:" >&2
+    echo "       $program 7.4.0" >&2
+    echo "       $program github:php/php-src@php-7.4.0alpha2" >&2
+    echo "       $program github:php/php-src as php-8.0.0-dev" >&2
+    exit 1;
+}
+
+if [ $# -lt 1 ]; then
+    __help
+fi
+
+SOURCE="$1"
+BUILD="$SOURCE"
+
+if [[ "$SOURCE" =~ ^github:[^@]+@(.*) ]]; then
+    BUILD="${BASH_REMATCH[1]}"
+fi
+
+if [ $# -gt 1 ]; then
+    if [ "$2" != "as" ]; then
+        __help
+    fi
+
+    if [ $# -ne 3 ]; then
+        __help
+    fi
+
+    BUILD="$3"
+    AS="as $BUILD"
+fi
+
+phpbrew --debug install "$SOURCE" $AS \
+  +neutral \
+  +bz2 \
+  +bcmath \
+  +curl \
+  +fpm \
+  +gd \
+  +gmp \
+  +iconv \
+  +ldap \
+  +mbstring \
+  +mysql \
+  +openssl \
+  +pdo \
+  +sqlite \
+  +soap \
+  +xml \
+  +zip \
+  +zlib
+
+phpbrew use "${BUILD}"
+
+# manually enable shared extensions
+phpbrew ext enable gd
+phpbrew ext enable opcache
+
+PHP_VERSION_ID=`php -r 'echo PHP_VERSION_ID;'`
+
+[ $PHP_VERSION_ID -ge 50500 ] && IS_GTE_PHP55=1
+[ $PHP_VERSION_ID -ge 70000 ] && IS_GTE_PHP70=1
+[ $PHP_VERSION_ID -ge 70200 ] && IS_GTE_PHP72=1
+[ $PHP_VERSION_ID -ge 70300 ] && IS_GTE_PHP73=1
+[ $PHP_VERSION_ID -ge 70400 ] && IS_GTE_PHP74=1
+
+# Disable immediate exit since some extensions may fail to install
+# but we still want to install as many of them as possible
+set +e
+
+# fails if compiled statically on php 7.3 and older on ubuntu 19.10
+phpbrew ext install intl
+
+# Oci8 (conflicts with LDAP if linked statically)
+phpbrew ext install oci8 -- --with-oci8=instantclient,/usr/local/lib/instantclient_19_3
+phpbrew ext install pdo_oci -- --with-pdo-oci=instantclient,/usr/local/lib/instantclient_19_3
+
+# IBM DB2 (PECL)
+phpbrew ext install ibm_db2 -- --with-IBM_DB2=/opt/ibm/dsdriver
+
+# PostgreSQL
+phpbrew ext install pdo_pgsql
+
+# IMAP (the library is not within --with-libdir on Debian)
+env PHP_OPENSSL=yes phpbrew ext install imap -- --with-imap-ssl --with-kerberos
+
+# Xdebug (PECL)
+if [ "$IS_GTE_PHP80" ]
+then
+    phpbrew ext install github:xdebug/xdebug
+elif [ "$IS_GTE_PHP70" ]
+then
+    phpbrew ext install xdebug
+elif [ "$IS_GTE_PHP55" ]
+then
+    phpbrew ext install xdebug 2.5.5
+else
+    phpbrew ext install xdebug 2.2.7
+fi
+
+if [ "$IS_GTE_PHP70" ]
+then
+    phpbrew ext install pcov # (PECL)
+fi
+
+if [ "$IS_GTE_PHP70" ]
+then
+    phpbrew ext install jsmin # (PECL)
+else
+    phpbrew ext install jsmin 2.0.1 # (PECL)
+fi
+
+if [ "$IS_GTE_PHP70" ]
+then
+    phpbrew ext install ast # (PECL)
+    phpbrew ext install xhprof # (PECL)
+else
+    phpbrew ext install xhprof 0.9.4 # (PECL)
+fi
+
+if [ "$IS_GTE_PHP74" ]
+then
+    phpbrew ext install sqlsrv 5.7.0preview
+    phpbrew ext install pdo_sqlsrv 5.7.0preview
+elif [ "$IS_GTE_PHP70" ]
+then
+    phpbrew ext install sqlsrv
+    phpbrew ext install pdo_sqlsrv
+fi
+
+phpbrew cd etc
+
+if [ "$IS_GTE_PHP70" ]
+then
+    CONF=php-fpm.d/www.conf
+    cp php-fpm.d/www.conf.default $CONF
+    cp php-fpm.conf{.default,}
+else
+    CONF=php-fpm.conf
+    cp php-fpm.conf.default $CONF
+fi
+
+sed -i "s/^user = nobody/;user = nobody/" $CONF
+sed -i "s/^group = nobody/;group = nobody/" $CONF
+sed -i "s/^listen = 127.0.0.1:9000/listen = var\/run\/php-fpm.sock/" $CONF
+sed -i "s/^;catch_workers_output = yes/catch_workers_output = yes/" $CONF
+sed -i "s/^;clear_env = no/clear_env = no/" $CONF
+
+# link development configs
+phpbrew cd var
+ln -s ~/Dropbox/Profile/Development/php/development.ini db/
+ln -s ~/Dropbox/Profile/Development/php/sugarcrm.ini db/
