@@ -57,7 +57,9 @@ phpbrew --debug install "$SOURCE" $AS \
   +mbstring \
   +mysql \
   +openssl \
+  +pcntl \
   +pdo \
+  +readline \
   +sqlite \
   +soap \
   +xml \
