@@ -136,12 +136,12 @@ fi
 
 if [ "$IS_GTE_PHP74" ]
 then
-    phpbrew ext install sqlsrv 5.7.0preview
-    phpbrew ext install pdo_sqlsrv 5.7.0preview
-elif [ "$IS_GTE_PHP70" ]
-then
     phpbrew ext install sqlsrv
     phpbrew ext install pdo_sqlsrv
+elif [ "$IS_GTE_PHP71" ]
+then
+    phpbrew ext install sqlsrv 5.7.0preview
+    phpbrew ext install pdo_sqlsrv 5.7.0preview
 fi
 
 phpbrew cd etc
