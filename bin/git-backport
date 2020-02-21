@@ -22,7 +22,14 @@ MERGE_BASE=$(diff -u \
     | head -1
 )
 
-git rebase "$MERGE_BASE" --onto "$TARGET_BRANCH"
+git rebase "$MERGE_BASE" --onto "$TARGET_BRANCH" || (
+    echo "Cannot rebase. Resolve the conflict and proceed manually:";
+    echo "git rebase --continue";
+    echo "export TARGET_BRANCH=$TARGET_BRANCH";
+    echo "export TOPIC_BRANCH=$TOPIC_BRANCH";
+    exit 1
+)
+
 git checkout "$TARGET_BRANCH"
 git merge "$TOPIC_BRANCH" --no-ff --no-edit
 git branch -D "$TOPIC_BRANCH"
