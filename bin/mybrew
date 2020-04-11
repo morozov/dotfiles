@@ -74,11 +74,11 @@ phpbrew ext enable opcache
 
 PHP_VERSION_ID=`php -r 'echo PHP_VERSION_ID;'`
 
-[ $PHP_VERSION_ID -ge 50500 ] && IS_GTE_PHP55=1
-[ $PHP_VERSION_ID -ge 70000 ] && IS_GTE_PHP70=1
-[ $PHP_VERSION_ID -ge 70200 ] && IS_GTE_PHP72=1
-[ $PHP_VERSION_ID -ge 70300 ] && IS_GTE_PHP73=1
-[ $PHP_VERSION_ID -ge 70400 ] && IS_GTE_PHP74=1
+[[ $PHP_VERSION_ID -ge 50500 ]] && IS_GTE_PHP55=1
+[[ $PHP_VERSION_ID -ge 70000 ]] && IS_GTE_PHP70=1
+[[ $PHP_VERSION_ID -ge 70200 ]] && IS_GTE_PHP72=1
+[[ $PHP_VERSION_ID -ge 70300 ]] && IS_GTE_PHP73=1
+[[ $PHP_VERSION_ID -ge 70400 ]] && IS_GTE_PHP74=1
 
 # Disable immediate exit since some extensions may fail to install
 # but we still want to install as many of them as possible
@@ -101,32 +101,32 @@ phpbrew ext install pdo_pgsql
 env PHP_OPENSSL=yes phpbrew ext install imap -- --with-imap-ssl --with-kerberos
 
 # Xdebug (PECL)
-if [ "$IS_GTE_PHP80" ]
+if [[ "$IS_GTE_PHP80" ]]
 then
     phpbrew ext install github:xdebug/xdebug
-elif [ "$IS_GTE_PHP70" ]
+elif [[ "$IS_GTE_PHP70" ]]
 then
     phpbrew ext install xdebug
-elif [ "$IS_GTE_PHP55" ]
+elif [[ "$IS_GTE_PHP55" ]]
 then
     phpbrew ext install xdebug 2.5.5
 else
     phpbrew ext install xdebug 2.2.7
 fi
 
-if [ "$IS_GTE_PHP70" ]
+if [[ "$IS_GTE_PHP70" ]]
 then
     phpbrew ext install pcov # (PECL)
 fi
 
-if [ "$IS_GTE_PHP70" ]
+if [[ "$IS_GTE_PHP70" ]]
 then
     phpbrew ext install jsmin # (PECL)
 else
     phpbrew ext install jsmin 2.0.1 # (PECL)
 fi
 
-if [ "$IS_GTE_PHP70" ]
+if [[ "$IS_GTE_PHP70" ]]
 then
     phpbrew ext install ast # (PECL)
     phpbrew ext install xhprof # (PECL)
@@ -134,11 +134,11 @@ else
     phpbrew ext install xhprof 0.9.4 # (PECL)
 fi
 
-if [ "$IS_GTE_PHP74" ]
+if [[ "$IS_GTE_PHP74" ]]
 then
     phpbrew ext install sqlsrv
     phpbrew ext install pdo_sqlsrv
-elif [ "$IS_GTE_PHP71" ]
+elif [[ "$IS_GTE_PHP71" ]]
 then
     phpbrew ext install sqlsrv 5.7.0preview
     phpbrew ext install pdo_sqlsrv 5.7.0preview
@@ -146,7 +146,7 @@ fi
 
 phpbrew cd etc
 
-if [ "$IS_GTE_PHP70" ]
+if [[ "$IS_GTE_PHP70" ]]
 then
     CONF=php-fpm.d/www.conf
     cp php-fpm.d/www.conf.default $CONF
