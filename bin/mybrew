@@ -79,6 +79,7 @@ PHP_VERSION_ID=`php -r 'echo PHP_VERSION_ID;'`
 [[ $PHP_VERSION_ID -ge 70200 ]] && IS_GTE_PHP72=1
 [[ $PHP_VERSION_ID -ge 70300 ]] && IS_GTE_PHP73=1
 [[ $PHP_VERSION_ID -ge 70400 ]] && IS_GTE_PHP74=1
+[[ $PHP_VERSION_ID -ge 80000 ]] && IS_GTE_PHP80=1
 
 # Disable immediate exit since some extensions may fail to install
 # but we still want to install as many of them as possible
