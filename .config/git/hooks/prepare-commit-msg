@@ -1,0 +1,3 @@
+#!/bin/sh
+
+~/Projects/jira-issue-summary/jira-prepare-commit-msg.php "$@"
