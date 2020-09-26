@@ -1,1 +1,1 @@
-set -x MAKEFLAGS $MAKEFLAGS -j(nproc)
+set -x MAKEFLAGS $MAKEFLAGS -j(getconf _NPROCESSORS_ONLN)
