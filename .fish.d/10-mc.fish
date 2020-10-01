@@ -1,9 +1,9 @@
 if which mc > /dev/null 2>&1
     function mc
         set SHELL_PID %self
-        set MC_PWD_FILE "/tmp/mc-$USER/mc.pwd.$SHELL_PID"
+        set MC_PWD_FILE "/tmp/mc-$USER-$SHELL_PID.pwd"
 
-        /usr/bin/mc -P $MC_PWD_FILE $argv
+        command mc -P $MC_PWD_FILE $argv
 
         if test -r $MC_PWD_FILE
 
