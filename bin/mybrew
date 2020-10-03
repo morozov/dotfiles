@@ -157,11 +157,12 @@ else
     cp php-fpm.conf.default $CONF
 fi
 
-sed -i "s/^user = nobody/;user = nobody/" $CONF
-sed -i "s/^group = nobody/;group = nobody/" $CONF
-sed -i "s/^listen = 127.0.0.1:9000/listen = var\/run\/php-fpm.sock/" $CONF
-sed -i "s/^;catch_workers_output = yes/catch_workers_output = yes/" $CONF
-sed -i "s/^;clear_env = no/clear_env = no/" $CONF
+sed -i.bak "s/^user = nobody/;user = nobody/" $CONF
+sed -i.bak "s/^group = nobody/;group = nobody/" $CONF
+sed -i.bak "s/^listen = 127.0.0.1:9000/listen = var\/run\/php-fpm.sock/" $CONF
+sed -i.bak "s/^;catch_workers_output = yes/catch_workers_output = yes/" $CONF
+sed -i.bak "s/^;clear_env = no/clear_env = no/" $CONF
+rm $CONF.bak
 
 # link development configs
 phpbrew cd var
