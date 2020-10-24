@@ -59,6 +59,7 @@ phpbrew --debug install "$SOURCE" $AS \
   +openssl \
   +pcntl \
   +pdo \
+  +pgsql \
   +readline \
   +sqlite \
   +soap \
@@ -94,9 +95,6 @@ phpbrew ext install pdo_oci -- --with-pdo-oci=instantclient,/usr/local/lib/insta
 
 # IBM DB2 (PECL)
 phpbrew ext install ibm_db2 -- --with-IBM_DB2=/opt/ibm/dsdriver
-
-# PostgreSQL
-phpbrew ext install pdo_pgsql
 
 # IMAP (the library is not within --with-libdir on Debian)
 env PHP_OPENSSL=yes phpbrew ext install imap -- --with-imap-ssl --with-kerberos
