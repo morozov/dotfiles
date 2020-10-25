@@ -53,6 +53,7 @@ phpbrew --debug install "$SOURCE" $AS \
   +gd \
   +gmp \
   +iconv \
+  +imap \
   +ldap \
   +mbstring \
   +mysql \
@@ -95,9 +96,6 @@ phpbrew ext install pdo_oci -- --with-pdo-oci=instantclient,/usr/local/lib/insta
 
 # IBM DB2 (PECL)
 phpbrew ext install ibm_db2 -- --with-IBM_DB2=/opt/ibm/dsdriver
-
-# IMAP (the library is not within --with-libdir on Debian)
-env PHP_OPENSSL=yes phpbrew ext install imap -- --with-imap-ssl --with-kerberos
 
 # Xdebug (PECL)
 if [[ "$IS_GTE_PHP80" ]]
