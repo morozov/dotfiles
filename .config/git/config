@@ -2,6 +2,9 @@
 	pager = less -x4
 	ignorecase = false
 	hooksPath = ~/.config/git/hooks
+
+	# See https://stackoverflow.com/questions/34549040/git-not-displaying-unicode-file-names
+	quotePath = false
 [user]
 	name = Sergei Morozov
 	email = morozov@tut.by
