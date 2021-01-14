@@ -1,0 +1,13 @@
+{
+    "editor.scrollBeyondLastLine": false,
+    "editor.fontSize": 15,
+    "editor.fontFamily": "JetBrains Mono",
+    "editor.fontLigatures": true,
+    "editor.renderWhitespace": "all",
+    "workbench.startupEditor": "newUntitledFile",
+    "extensions.ignoreRecommendations": true,
+    "files.associations": {
+        "*.xml.dist": "xml"
+    },
+    "window.zoomLevel": 0
+}
