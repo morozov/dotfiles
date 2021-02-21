@@ -82,6 +82,7 @@ PHP_VERSION_ID=`php -r 'echo PHP_VERSION_ID;'`
 [[ $PHP_VERSION_ID -ge 70300 ]] && IS_GTE_PHP73=1
 [[ $PHP_VERSION_ID -ge 70400 ]] && IS_GTE_PHP74=1
 [[ $PHP_VERSION_ID -ge 80000 ]] && IS_GTE_PHP80=1
+[[ $PHP_VERSION_ID -ge 80100 ]] && IS_GTE_PHP81=1
 
 # Disable immediate exit since some extensions may fail to install
 # but we still want to install as many of them as possible
@@ -98,7 +99,7 @@ phpbrew ext install pdo_oci -- --with-pdo-oci=instantclient,/usr/local/lib/insta
 phpbrew ext install ibm_db2 -- --with-IBM_DB2=/opt/ibm/dsdriver
 
 # Xdebug (PECL)
-if [[ "$IS_GTE_PHP80" ]]
+if [[ "$IS_GTE_PHP81" ]]
 then
     phpbrew ext install github:xdebug/xdebug
 elif [[ "$IS_GTE_PHP70" ]]
