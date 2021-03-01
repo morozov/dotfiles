@@ -167,5 +167,5 @@ rm $CONF.bak
 
 # link development configs
 phpbrew cd var
-ln -s ~/Dropbox/Profile/Development/php/development.ini db/
-ln -s ~/Dropbox/Profile/Development/php/sugarcrm.ini db/
+ln -fs ~/Dropbox/Profile/Development/php/development.ini db/
+ln -fs ~/Dropbox/Profile/Development/php/sugarcrm.ini db/
