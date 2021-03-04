@@ -1,2 +1,2 @@
 --map-syntax "*.env:DotENV"
---style plain,changes,grid
+--style plain
