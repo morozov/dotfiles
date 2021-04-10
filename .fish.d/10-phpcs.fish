@@ -1,1 +1,1 @@
-alias phpcs="phpcs --runtime-set report_width auto"
+alias phpcs="php-noxdebug (command which phpcs)"
