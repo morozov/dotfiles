@@ -22,10 +22,10 @@ ORIGIN_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 UPSTREAM_USER=$(git-pr-get-param upstream 1)
 UPSTREAM_BRANCH=${1:-master}
 
-if [[ $(which open) ]] ; then
-    OPEN=open
-elif [[ $(which xdg-open) ]] ; then
+if [[ $(which xdg-open) ]] ; then
     OPEN=xdg-open
+elif [[ $(which open) ]] ; then
+    OPEN=open
 else
     OPEN=echo
 fi
