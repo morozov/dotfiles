@@ -9,5 +9,6 @@
     "files.associations": {
         "*.xml.dist": "xml"
     },
-    "window.zoomLevel": 0
+    "window.zoomLevel": 0,
+    "workbench.editor.highlightModifiedTabs": true
 }
