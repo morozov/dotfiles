@@ -132,11 +132,7 @@ else
     phpbrew ext install xhprof 0.9.4 # (PECL)
 fi
 
-if [[ "$IS_GTE_PHP80" ]]
-then
-    phpbrew ext install sqlsrv 5.9.0preview1
-    phpbrew ext install pdo_sqlsrv 5.9.0preview1
-elif [[ "$IS_GTE_PHP74" ]]
+if [[ "$IS_GTE_PHP74" ]]
 then
     phpbrew ext install sqlsrv
     phpbrew ext install pdo_sqlsrv
