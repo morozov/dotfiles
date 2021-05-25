@@ -1,4 +1,7 @@
-if [ -x /usr/share/mc/bin/mc-wrapper.sh ]
+if [[ -x /usr/share/mc/bin/mc-wrapper.sh ]]
 then
     alias mc=". /usr/share/mc/bin/mc-wrapper.sh"
+elif [[ -x /usr/lib/mc/mc-wrapper.sh ]]
+then
+    alias mc=". /usr/lib/mc/mc-wrapper.sh"
 fi
