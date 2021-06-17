@@ -9,6 +9,8 @@
     "files.associations": {
         "*.xml.dist": "xml"
     },
+    "security.workspace.trust.untrustedFiles": "open",
     "window.zoomLevel": 0,
-    "workbench.editor.highlightModifiedTabs": true
+    "workbench.editor.highlightModifiedTabs": true,
+    "workbench.editor.untitled.hint": "hidden"
 }
