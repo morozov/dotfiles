@@ -1,0 +1,3 @@
+# Prevent the usage of Protobuf installed via Homebrew
+# See https://github.com/bazelbuild/bazel/issues/8053#issuecomment-490838966
+build --sandbox_block_path=/usr/local
