@@ -12,12 +12,8 @@ function __php_switch --argument v
     set -gx PATH (__php_get_version_path $v) $__PATH_WITHOUT_PHP
 end
 
-function __php_register_alias --argument v
-    set -l description (string escape -- "Use PHP $v")
-
-    echo "function $v --description $description; __php_switch $v; end" | source
-end
-
 for v in (__php_get_versions)
-    __php_register_alias $v
+    function $v --inherit-variable v --description "Use PHP $v"
+        __php_switch $v
+    end
 end
