@@ -1,3 +1,34 @@
 #!/usr/bin/env bash
 
-diff-sniffer --staged "$@"
+# original idea: https://gist.github.com/aadmathijssen/e539b808a5da9a7e8f74244610554111
+set -euo pipefail
+
+# restore to the previous configuration
+function cleanup {
+    git reset --hard --quiet
+    git stash pop --index --quiet
+}
+
+if [[ -f "$(git rev-parse --git-dir)/MERGE_HEAD" ]]; then
+    exit
+fi
+
+PHPCS="$(git rev-parse --show-toplevel)/vendor/bin/phpcs"
+
+# verify only PHP projects with PHP_CodeSniffer installed
+if [[ ! -x "$PHPCS" ]]; then
+    exit
+fi
+
+# early exit if there are no staged changes (e.g. during commit --amend)
+if git diff --cached --exit-code > /dev/null ; then
+    exit
+fi
+
+# stash all changes except for the staged ones
+git stash push --keep-index --include-untracked -m "PHP_CodeSniffer pre-commit stash" --quiet
+
+trap cleanup EXIT
+
+# run PHP_CodeSniffer on the staged files
+git diff --cached --name-only --diff-filter=AM | xargs php-noxdebug "$PHPCS"
