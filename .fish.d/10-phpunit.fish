@@ -1,1 +1,3 @@
-alias phpunit="php-noxdebug (command which phpunit) --color=always --columns max --testdox-text /tmp/phpunit-(date +"%Y%m%d-%H%M%S").log"
+function phpunit
+    env XDEBUG_MODE=off (command which phpunit) --color=always --columns=max $argv
+end

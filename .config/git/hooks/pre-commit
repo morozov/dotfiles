@@ -31,4 +31,4 @@ git stash push --keep-index --include-untracked -m "PHP_CodeSniffer pre-commit s
 trap cleanup EXIT
 
 # run PHP_CodeSniffer on the staged files
-git diff --cached --name-only --diff-filter=AM | xargs php-noxdebug "$PHPCS"
+git diff --cached --name-only --diff-filter=AM | env XDEBUG_MODE=off xargs "$PHPCS"
