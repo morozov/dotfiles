@@ -1,0 +1,3 @@
+[submodule "Z80Assembly"]
+	path = .config/bat/syntaxes/Z80Assembly
+	url = git@github.com:mrcook/Z80Assembly.git
