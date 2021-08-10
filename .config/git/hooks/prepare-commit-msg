@@ -1,3 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-~/Projects/jira-issue-summary/jira-prepare-commit-msg.php "$@"
+if which jira-prepare-commit-msg > /dev/null 2>&1; then
+    env XDEBUG_MODE=off jira-prepare-commit-msg "$@"
+fi
