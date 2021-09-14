@@ -1,6 +1,5 @@
-if [ -d /usr/local/go/bin ]
-    set -x PATH $PATH /usr/local/go/bin
-    set -x GOROOT /usr/local/go
+if which go > /dev/null 2>&1
+    set -x GOROOT (go env GOROOT)
 end
 
 if [ -d $HOME/go/bin ]
