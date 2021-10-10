@@ -3,15 +3,19 @@
 # original idea: https://gist.github.com/aadmathijssen/e539b808a5da9a7e8f74244610554111
 set -euo pipefail
 
-# restore to the previous configuration
+# restore the original state
 function cleanup {
     git reset --hard --quiet
     git stash pop --index --quiet
 }
 
-if [[ -f "$(git rev-parse --git-dir)/MERGE_HEAD" ]]; then
-    exit
-fi
+# ignore merge and cherry-pick commits since stashing will interrupt the process
+for i in MERGE_HEAD CHERRY_PICK_HEAD
+do
+    if [[ -f "$(git rev-parse --git-dir)/$i" ]]; then
+        exit
+    fi
+done
 
 PHPCS="$(git rev-parse --show-toplevel)/vendor/bin/phpcs"
 
