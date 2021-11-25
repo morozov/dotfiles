@@ -4,3 +4,5 @@ set incsearch
 set hlsearch
 autocmd BufRead,BufNewFile ~/.phpbrew/php/php-* set syntax=dosini
 autocmd FileType make set noexpandtab
+
+map f w
