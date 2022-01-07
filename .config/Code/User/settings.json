@@ -9,6 +9,7 @@
     "files.associations": {
         "*.xml.dist": "xml"
     },
+    "files.insertFinalNewline": true,
     "security.workspace.trust.untrustedFiles": "open",
     "window.zoomLevel": 0,
     "workbench.editor.highlightModifiedTabs": true,
