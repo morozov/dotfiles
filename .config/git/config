@@ -13,7 +13,6 @@
 	ui = auto
 [alias]
 	pr = "!f() { git fetch -f "upstream pull/$1/head:pull/$1" && git checkout "pull/$1"; }; f"
-	update = "!f() { git fetch --all --tags && git submodule foreach git fetch --all --tags; }; f"
 	lg = "log --pretty=format:'%Cred%h%Creset%C(yellow)%d%Creset %<(48,mtrunc)%s %Cgreen(%cr) %C(bold blue)<%an>%Creset'"
 [log]
 	decorate = short

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+git fetch --all --tags
+
+git submodule foreach git fetch --all --tags
+
+current="$(git rev-parse --abbrev-ref HEAD)"
+
+for branch in $(git for-each-ref refs/heads --format="%(refname:short)"); do
+    remote="$(git config --get "branch.$branch.remote")" || continue
+    merge="$(git config --get "branch.$branch.merge" | sed "s:refs/heads/::")"
+
+    if [[ "$branch" = "$current" ]]; then
+        git merge --ff-only "$remote/$merge" || continue
+    else
+        git fetch . "$remote/$merge:$branch" || continue
+    fi
+done;
