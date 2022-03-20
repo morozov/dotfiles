@@ -17,10 +17,15 @@ function git-pr-get-param() {
 set -eo pipefail
 
 ORIGIN_USER=$(git-pr-get-param origin 1)
-ORIGIN_REPO=$(git-pr-get-param origin 2)
 ORIGIN_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 UPSTREAM_USER=$(git-pr-get-param upstream 1)
-UPSTREAM_BRANCH=${1:-master}
+UPSTREAM_REPO=$(git-pr-get-param upstream 2)
+
+if [[ ! -z "$1" ]]; then
+    COMPARISON_BASE="$1..."
+else
+    COMPARISON_BASE=
+fi
 
 if [[ $(which xdg-open) ]] ; then
     OPEN=xdg-open
@@ -30,4 +35,4 @@ else
     OPEN=echo
 fi
 
-command $OPEN "https://github.com/$ORIGIN_USER/$ORIGIN_REPO/compare/$UPSTREAM_USER:$UPSTREAM_BRANCH...$ORIGIN_USER:$ORIGIN_BRANCH" &
+command $OPEN "https://github.com/$UPSTREAM_USER/$UPSTREAM_REPO/compare/$COMPARISON_BASE$ORIGIN_USER:$ORIGIN_BRANCH" &
