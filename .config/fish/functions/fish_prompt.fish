@@ -16,12 +16,9 @@ function __git_is_repo
 end
 
 function __git_branch_name
-    set -l branch (git symbolic-ref --quiet HEAD 2>/dev/null)
-    if set -q branch[1]
-        echo (string replace -r "^refs/heads/" "" $branch)
-    else
-        echo (git rev-parse --short HEAD 2>/dev/null)
-    end
+    git symbolic-ref --short -q HEAD \
+        || git describe --tags --exact-match 2> /dev/null \
+        || git rev-parse --short HEAD
 end
 
 function __git_color -S
