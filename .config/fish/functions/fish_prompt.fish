@@ -1,11 +1,15 @@
-function __k8s_color -S
+function __k8s_context -S
+    grep "current-context:" ~/.kube/config | sed "s/current-context: //"
+end
+
+function __k8s_context_icon -S
     switch $argv[1]
     case "*prod"
-        echo red
+        echo 🔴
     case "*qa" "*stage" "*stg"
-        echo yellow
+        echo 🟡
     case "*"
-        echo green
+        echo 🟢
     end
 end
 
@@ -71,10 +75,10 @@ function __git_ahead -S
     end
 end
 
-function fish_right_prompt
-    set -l context (cat ~/.kube/config | grep "current-context:" | sed "s/current-context: //")
-    set -l color (__k8s_color $context)
-    echo -n -s "(" (set_color $color) $context (set_color normal) ") "
+function iterm2_print_user_vars
+    set -l context (__k8s_context)
+    set -l icon (__k8s_context_icon $context)
+    iterm2_set_user_var kubeContext (string join " " $icon $context)
 end
 
 function fish_prompt
