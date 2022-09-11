@@ -2,8 +2,44 @@
   "title": "Language Toggler",
   "rules": [
     {
-      "description": "Switch between RU <-> EN (Left Control + Left Shift)",
+      "description": "Switch between EN ↔ RU (Fn + Left Shift or Left Ctrl + Left Shift)",
       "manipulators": [
+        {
+          "conditions": [
+            {
+              "input_sources": [
+                {
+                  "language": "en"
+                }
+              ],
+              "type": "input_source_if"
+            }
+          ],
+          "from": {
+            "key_code": "left_shift",
+            "modifiers": {
+              "mandatory": [
+                "fn"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "left_shift",
+              "modifiers": [
+                "fn"
+              ]
+            }
+          ],
+          "to_if_alone": [
+            {
+              "select_input_source": {
+                "language": "ru"
+              }
+            }
+          ],
+          "type": "basic"
+        },
         {
           "conditions": [
             {
@@ -35,6 +71,42 @@
             {
               "select_input_source": {
                 "language": "ru"
+              }
+            }
+          ],
+          "type": "basic"
+        },
+        {
+          "conditions": [
+            {
+              "input_sources": [
+                {
+                  "language": "ru"
+                }
+              ],
+              "type": "input_source_if"
+            }
+          ],
+          "from": {
+            "key_code": "left_shift",
+            "modifiers": {
+              "mandatory": [
+                "fn"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "left_shift",
+              "modifiers": [
+                "fn"
+              ]
+            }
+          ],
+          "to_if_alone": [
+            {
+              "select_input_source": {
+                "language": "en"
               }
             }
           ],
