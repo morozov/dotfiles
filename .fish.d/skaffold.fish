@@ -1,218 +1,176 @@
+# fish completion for skaffold                             -*- shell-script -*-
 
-function __fish_skaffold_no_subcommand --description 'Test if skaffold has yet to be given the subcommand'
-	for i in (commandline -opc)
-		if contains -- $i build completion config debug delete deploy dev diagnose fix init options run version
-			return 1
-		end
-	end
-	return 0
+function __skaffold_debug
+    set -l file "$BASH_COMP_DEBUG_FILE"
+    if test -n "$file"
+        echo "$argv" >> $file
+    end
 end
-function __fish_skaffold_seen_subcommand_path --description 'Test whether the full path of subcommands is the current path'
-	  set -l cmd (commandline -opc)
-	  set -e cmd[1]
-    set -l pattern (string replace -a " " ".+" "$argv")
-    string match -r "$pattern" (string trim -- "$cmd")
+
+function __skaffold_perform_completion
+    __skaffold_debug "Starting __skaffold_perform_completion"
+
+    # Extract all args except the last one
+    set -l args (commandline -opc)
+    # Extract the last arg and escape it in case it is a space
+    set -l lastArg (string escape -- (commandline -ct))
+
+    __skaffold_debug "args: $args"
+    __skaffold_debug "last arg: $lastArg"
+
+    set -l requestComp "$args[1] __complete $args[2..-1] $lastArg"
+
+    __skaffold_debug "Calling $requestComp"
+    set -l results (eval $requestComp 2> /dev/null)
+
+    # Some programs may output extra empty lines after the directive.
+    # Let's ignore them or else it will break completion.
+    # Ref: https://github.com/spf13/cobra/issues/1279
+    for line in $results[-1..1]
+        if test (string trim -- $line) = ""
+            # Found an empty line, remove it
+            set results $results[1..-2]
+        else
+            # Found non-empty line, we have our proper output
+            break
+        end
+    end
+
+    set -l comps $results[1..-2]
+    set -l directiveLine $results[-1]
+
+    # For Fish, when completing a flag with an = (e.g., <program> -n=<TAB>)
+    # completions must be prefixed with the flag
+    set -l flagPrefix (string match -r -- '-.*=' "$lastArg")
+
+    __skaffold_debug "Comps: $comps"
+    __skaffold_debug "DirectiveLine: $directiveLine"
+    __skaffold_debug "flagPrefix: $flagPrefix"
+
+    for comp in $comps
+        printf "%s%s\n" "$flagPrefix" "$comp"
+    end
+
+    printf "%s\n" "$directiveLine"
 end
-# borrowed from current fish-shell master, since it is not in current 2.7.1 release
-function __fish_seen_argument
-	argparse 's/short=+' 'l/long=+' -- $argv
 
-	set cmd (commandline -co)
-	set -e cmd[1]
-	for t in $cmd
-		for s in $_flag_s
-			if string match -qr "^-[A-z0-9]*"$s"[A-z0-9]*\$" -- $t
-				return 0
-			end
-		end
+# This function does two things:
+# - Obtain the completions and store them in the global __skaffold_comp_results
+# - Return false if file completion should be performed
+function __skaffold_prepare_completions
+    __skaffold_debug ""
+    __skaffold_debug "========= starting completion logic =========="
 
-		for l in $_flag_l
-			if string match -q -- "--$l" $t
-				return 0
-			end
-		end
-	end
+    # Start fresh
+    set --erase __skaffold_comp_results
 
-	return 1
+    set -l results (__skaffold_perform_completion)
+    __skaffold_debug "Completion results: $results"
+
+    if test -z "$results"
+        __skaffold_debug "No completion, probably due to a failure"
+        # Might as well do file completion, in case it helps
+        return 1
+    end
+
+    set -l directive (string sub --start 2 $results[-1])
+    set --global __skaffold_comp_results $results[1..-2]
+
+    __skaffold_debug "Completions are: $__skaffold_comp_results"
+    __skaffold_debug "Directive is: $directive"
+
+    set -l shellCompDirectiveError 1
+    set -l shellCompDirectiveNoSpace 2
+    set -l shellCompDirectiveNoFileComp 4
+    set -l shellCompDirectiveFilterFileExt 8
+    set -l shellCompDirectiveFilterDirs 16
+
+    if test -z "$directive"
+        set directive 0
+    end
+
+    set -l compErr (math (math --scale 0 $directive / $shellCompDirectiveError) % 2)
+    if test $compErr -eq 1
+        __skaffold_debug "Received error directive: aborting."
+        # Might as well do file completion, in case it helps
+        return 1
+    end
+
+    set -l filefilter (math (math --scale 0 $directive / $shellCompDirectiveFilterFileExt) % 2)
+    set -l dirfilter (math (math --scale 0 $directive / $shellCompDirectiveFilterDirs) % 2)
+    if test $filefilter -eq 1; or test $dirfilter -eq 1
+        __skaffold_debug "File extension filtering or directory filtering not supported"
+        # Do full file completion instead
+        return 1
+    end
+
+    set -l nospace (math (math --scale 0 $directive / $shellCompDirectiveNoSpace) % 2)
+    set -l nofiles (math (math --scale 0 $directive / $shellCompDirectiveNoFileComp) % 2)
+
+    __skaffold_debug "nospace: $nospace, nofiles: $nofiles"
+
+    # If we want to prevent a space, or if file completion is NOT disabled,
+    # we need to count the number of valid completions.
+    # To do so, we will filter on prefix as the completions we have received
+    # may not already be filtered so as to allow fish to match on different
+    # criteria than the prefix.
+    if test $nospace -ne 0; or test $nofiles -eq 0
+        set -l prefix (commandline -t | string escape --style=regex)
+        __skaffold_debug "prefix: $prefix"
+
+        set -l completions (string match -r -- "^$prefix.*" $__skaffold_comp_results)
+        set --global __skaffold_comp_results $completions
+        __skaffold_debug "Filtered completions are: $__skaffold_comp_results"
+
+        # Important not to quote the variable for count to work
+        set -l numComps (count $__skaffold_comp_results)
+        __skaffold_debug "numComps: $numComps"
+
+        if test $numComps -eq 1; and test $nospace -ne 0
+            # We must first split on \t to get rid of the descriptions to be
+            # able to check what the actual completion will be.
+            # We don't need descriptions anyway since there is only a single
+            # real completion which the shell will expand immediately.
+            set -l split (string split --max 1 \t $__skaffold_comp_results[1])
+
+            # Fish won't add a space if the completion ends with any
+            # of the following characters: @=/:.,
+            set -l lastChar (string sub -s -1 -- $split)
+            if not string match -r -q "[@=/:.,]" -- "$lastChar"
+                # In other cases, to support the "nospace" directive we trick the shell
+                # by outputting an extra, longer completion.
+                __skaffold_debug "Adding second completion to perform nospace directive"
+                set --global __skaffold_comp_results $split[1] $split[1].
+                __skaffold_debug "Completions are now: $__skaffold_comp_results"
+            end
+        end
+
+        if test $numComps -eq 0; and test $nofiles -eq 0
+            # To be consistent with bash and zsh, we only trigger file
+            # completion when there are no other completions
+            __skaffold_debug "Requesting file completion"
+            return 1
+        end
+    end
+
+    return 0
 end
-complete -c skaffold -f -n '__fish_skaffold_no_subcommand' -a build -d 'Build the artifacts'
-complete -c skaffold -f -n '__fish_skaffold_no_subcommand' -a completion -d 'Output shell completion for the given shell (bash or zsh)'
-complete -c skaffold -f -n '__fish_skaffold_no_subcommand' -a config -d 'Interact with the Skaffold configuration'
-complete -c skaffold -f -n '__fish_skaffold_no_subcommand' -a debug -d 'Run a pipeline in debug mode'
-complete -c skaffold -f -n '__fish_skaffold_no_subcommand' -a delete -d 'Delete the deployed application'
-complete -c skaffold -f -n '__fish_skaffold_no_subcommand' -a deploy -d 'Deploy pre-built artifacts'
-complete -c skaffold -f -n '__fish_skaffold_no_subcommand' -a dev -d 'Run a pipeline in development mode'
-complete -c skaffold -f -n '__fish_skaffold_no_subcommand' -a diagnose -d 'Run a diagnostic on Skaffold'
-complete -c skaffold -f -n '__fish_skaffold_no_subcommand' -a fix -d 'Update old configuration to newest schema version'
-complete -c skaffold -f -n '__fish_skaffold_no_subcommand' -a init -d 'Generate configuration for deploying an application'
-complete -c skaffold -f -n '__fish_skaffold_no_subcommand' -a options -d ''
-complete -c skaffold -f -n '__fish_skaffold_no_subcommand' -a run -d 'Run a pipeline'
-complete -c skaffold -f -n '__fish_skaffold_no_subcommand' -a version -d 'Print the version information'
-complete -c skaffold -f -n '__fish_skaffold_no_subcommand' -r  -l color -d 'Specify the default output color in ANSI escape codes'
-complete -c skaffold -f -n '__fish_skaffold_no_subcommand' -r -s v -l verbosity -d 'Log level (debug, info, warn, error, fatal, panic)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build' -r -s b -l build-image -d 'Choose which artifacts to build. Artifacts with image names that contain the expression will be built only. Default is to build sources for all artifacts'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build'   -l cache-artifacts -d 'Set to true to enable caching of artifacts'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build' -r  -l cache-file -d 'Specify the location of the cache file (default $HOME/.skaffold/cache)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build' -r -s c -l config -d 'File for global configurations (defaults to $HOME/.skaffold/config)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build' -r -s d -l default-repo -d 'Default repository value (overrides global config)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build'   -l enable-rpc -d 'Enable gRPC for exposing Skaffold events (true by default for `skaffold dev`)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build' -r  -l file-output -d 'Filename to write build images to'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build' -r -s f -l filename -d 'Filename or URL to the pipeline file'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build' -r  -l insecure-registry -d 'Target registries for built images which are not secure'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build' -r  -l kube-context -d 'Deploy to this kubernetes context'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build' -r -s n -l namespace -d 'Run deployments in the specified namespace'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build' -r -s o -l output -d 'Used in conjunction with --quiet flag. Format output with go-template. For full struct documentation, see https://godoc.org/github.com/GoogleContainerTools/skaffold/cmd/skaffold/app/flags#BuildOutput'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build' -r -s p -l profile -d 'Activate profiles by name'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build'  -s q -l quiet -d 'Suppress the build output and print image built on success. See --output to format output.'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build' -r  -l rpc-http-port -d 'tcp port to expose event REST API over HTTP'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build' -r  -l rpc-port -d 'tcp port to expose event API'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build'   -l skip-tests -d 'Whether to skip the tests after building'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build'   -l toot -d 'Emit a terminal beep after the deploy is complete'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build' -r  -l color -d 'Specify the default output color in ANSI escape codes'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path build' -r -s v -l verbosity -d 'Log level (debug, info, warn, error, fatal, panic)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path completion; and not __fish_seen_argument -s h -l help' -a bash -d 'Positional Argument to completion'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path completion; and not __fish_seen_argument -s h -l help' -a fish -d 'Positional Argument to completion'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path completion; and not __fish_seen_argument -s h -l help' -a zsh -d 'Positional Argument to completion'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path completion'  -s h -l help -d 'help for completion'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path completion' -r  -l color -d 'Specify the default output color in ANSI escape codes'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path completion' -r -s v -l verbosity -d 'Log level (debug, info, warn, error, fatal, panic)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config' -a list -d 'List all values set in the global Skaffold config'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config' -a set -d 'Set a value in the global Skaffold config'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config' -a unset -d 'Unset a value in the global Skaffold config'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config' -r  -l color -d 'Specify the default output color in ANSI escape codes'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config' -r -s v -l verbosity -d 'Log level (debug, info, warn, error, fatal, panic)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config list'  -s a -l all -d 'Show values for all kubecontexts'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config list' -r -s c -l config -d 'Path to Skaffold config'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config list' -r -s k -l kube-context -d 'Kubectl context to set values against'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config list' -r  -l color -d 'Specify the default output color in ANSI escape codes'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config list' -r -s v -l verbosity -d 'Log level (debug, info, warn, error, fatal, panic)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config set' -r -s c -l config -d 'Path to Skaffold config'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config set'  -s g -l global -d 'Set value for global config'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config set' -r -s k -l kube-context -d 'Kubectl context to set values against'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config set' -r  -l color -d 'Specify the default output color in ANSI escape codes'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config set' -r -s v -l verbosity -d 'Log level (debug, info, warn, error, fatal, panic)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config unset' -r -s c -l config -d 'Path to Skaffold config'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config unset'  -s g -l global -d 'Set value for global config'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config unset' -r -s k -l kube-context -d 'Kubectl context to set values against'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config unset' -r  -l color -d 'Specify the default output color in ANSI escape codes'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path config unset' -r -s v -l verbosity -d 'Log level (debug, info, warn, error, fatal, panic)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug'   -l cache-artifacts -d 'Set to true to enable caching of artifacts'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug' -r  -l cache-file -d 'Specify the location of the cache file (default $HOME/.skaffold/cache)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug'   -l cleanup -d 'Delete deployments after dev or debug mode is interrupted'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug' -r -s c -l config -d 'File for global configurations (defaults to $HOME/.skaffold/config)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug' -r -s d -l default-repo -d 'Default repository value (overrides global config)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug'   -l enable-rpc -d 'Enable gRPC for exposing Skaffold events (true by default for `skaffold dev`)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug' -r -s f -l filename -d 'Filename or URL to the pipeline file'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug'   -l force -d 'Recreate kubernetes resources if necessary for deployment (warning: might cause downtime!)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug' -r  -l insecure-registry -d 'Target registries for built images which are not secure'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug' -r  -l kube-context -d 'Deploy to this kubernetes context'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug' -r -s l -l label -d 'Add custom labels to deployed objects. Set multiple times for multiple labels'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug' -r -s n -l namespace -d 'Run deployments in the specified namespace'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug'   -l no-prune -d 'Skip removing images and containers built by Skaffold'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug'   -l no-prune-children -d 'Skip removing layers reused by Skaffold'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug'   -l port-forward -d 'Port-forward exposed container ports within pods'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug' -r -s p -l profile -d 'Activate profiles by name'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug' -r  -l rpc-http-port -d 'tcp port to expose event REST API over HTTP'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug' -r  -l rpc-port -d 'tcp port to expose event API'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug'   -l skip-tests -d 'Whether to skip the tests after building'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug'   -l tail -d 'Stream logs from deployed objects'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug'   -l toot -d 'Emit a terminal beep after the deploy is complete'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug' -r  -l color -d 'Specify the default output color in ANSI escape codes'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path debug' -r -s v -l verbosity -d 'Log level (debug, info, warn, error, fatal, panic)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path delete' -r -s c -l config -d 'File for global configurations (defaults to $HOME/.skaffold/config)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path delete' -r -s d -l default-repo -d 'Default repository value (overrides global config)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path delete' -r -s f -l filename -d 'Filename or URL to the pipeline file'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path delete' -r  -l kube-context -d 'Deploy to this kubernetes context'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path delete' -r -s n -l namespace -d 'Run deployments in the specified namespace'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path delete' -r -s p -l profile -d 'Activate profiles by name'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path delete' -r  -l color -d 'Specify the default output color in ANSI escape codes'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path delete' -r -s v -l verbosity -d 'Log level (debug, info, warn, error, fatal, panic)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path deploy' -r -s a -l build-artifacts -d 'Filepath containing build output.
-E.g. build.out created by running skaffold build --quiet {{json .}} > build.out'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path deploy' -r -s c -l config -d 'File for global configurations (defaults to $HOME/.skaffold/config)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path deploy' -r -s d -l default-repo -d 'Default repository value (overrides global config)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path deploy'   -l enable-rpc -d 'Enable gRPC for exposing Skaffold events (true by default for `skaffold dev`)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path deploy' -r -s f -l filename -d 'Filename or URL to the pipeline file'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path deploy'   -l force -d 'Recreate kubernetes resources if necessary for deployment (default false, warning: might cause downtime!)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path deploy' -r -s i -l images -d 'A list of pre-built images to deploy'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path deploy' -r  -l kube-context -d 'Deploy to this kubernetes context'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path deploy' -r -s l -l label -d 'Add custom labels to deployed objects. Set multiple times for multiple labels'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path deploy' -r -s n -l namespace -d 'Run deployments in the specified namespace'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path deploy' -r -s p -l profile -d 'Activate profiles by name'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path deploy' -r  -l rpc-http-port -d 'tcp port to expose event REST API over HTTP'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path deploy' -r  -l rpc-port -d 'tcp port to expose event API'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path deploy'   -l tail -d 'Stream logs from deployed objects (default false)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path deploy'   -l toot -d 'Emit a terminal beep after the deploy is complete'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path deploy' -r  -l color -d 'Specify the default output color in ANSI escape codes'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path deploy' -r -s v -l verbosity -d 'Log level (debug, info, warn, error, fatal, panic)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev'   -l cache-artifacts -d 'Set to true to enable caching of artifacts'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev' -r  -l cache-file -d 'Specify the location of the cache file (default $HOME/.skaffold/cache)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev'   -l cleanup -d 'Delete deployments after dev or debug mode is interrupted'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev' -r -s c -l config -d 'File for global configurations (defaults to $HOME/.skaffold/config)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev' -r -s d -l default-repo -d 'Default repository value (overrides global config)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev'   -l enable-rpc -d 'Enable gRPC for exposing Skaffold events (true by default for `skaffold dev`)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev' -r -s f -l filename -d 'Filename or URL to the pipeline file'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev'   -l force -d 'Recreate kubernetes resources if necessary for deployment (warning: might cause downtime!)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev' -r  -l insecure-registry -d 'Target registries for built images which are not secure'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev' -r  -l kube-context -d 'Deploy to this kubernetes context'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev' -r -s l -l label -d 'Add custom labels to deployed objects. Set multiple times for multiple labels'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev' -r -s n -l namespace -d 'Run deployments in the specified namespace'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev'   -l no-prune -d 'Skip removing images and containers built by Skaffold'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev'   -l no-prune-children -d 'Skip removing layers reused by Skaffold'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev'   -l port-forward -d 'Port-forward exposed container ports within pods'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev' -r -s p -l profile -d 'Activate profiles by name'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev' -r  -l rpc-http-port -d 'tcp port to expose event REST API over HTTP'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev' -r  -l rpc-port -d 'tcp port to expose event API'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev'   -l skip-tests -d 'Whether to skip the tests after building'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev'   -l tail -d 'Stream logs from deployed objects'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev'   -l toot -d 'Emit a terminal beep after the deploy is complete'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev' -r  -l trigger -d 'How is change detection triggered? (polling, notify, or manual)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev' -r -s w -l watch-image -d 'Choose which artifacts to watch. Artifacts with image names that contain the expression will be watched only. Default is to watch sources for all artifacts'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev' -r -s i -l watch-poll-interval -d 'Interval (in ms) between two checks for file changes'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev' -r  -l color -d 'Specify the default output color in ANSI escape codes'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path dev' -r -s v -l verbosity -d 'Log level (debug, info, warn, error, fatal, panic)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path diagnose' -r -s f -l filename -d 'Filename or URL to the pipeline file'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path diagnose' -r -s p -l profile -d 'Activate profiles by name'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path diagnose' -r  -l color -d 'Specify the default output color in ANSI escape codes'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path diagnose' -r -s v -l verbosity -d 'Log level (debug, info, warn, error, fatal, panic)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path fix' -r -s f -l filename -d 'Filename or URL to the pipeline file'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path fix'   -l overwrite -d 'Overwrite original config with fixed config'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path fix' -r  -l color -d 'Specify the default output color in ANSI escape codes'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path fix' -r -s v -l verbosity -d 'Log level (debug, info, warn, error, fatal, panic)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path init'   -l analyze -d 'Print all discoverable Dockerfiles and images in JSON format to stdout'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path init' -r -s a -l artifact -d '\'=\'-delimited Dockerfile/image pair, or JSON string, to generate build artifact
-(example: --artifact=\'{"builder":"Docker","payload":{"path":"/web/Dockerfile.web"},"image":"gcr.io/web-project/image"}\')'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path init' -r  -l compose-file -d 'Initialize from a docker-compose file'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path init' -r -s f -l filename -d 'Filename or URL to the pipeline file'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path init'   -l force -d 'Force the generation of the Skaffold config'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path init'   -l skip-build -d 'Skip generating build artifacts in Skaffold config'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path init' -r  -l color -d 'Specify the default output color in ANSI escape codes'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path init' -r -s v -l verbosity -d 'Log level (debug, info, warn, error, fatal, panic)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path options' -r  -l color -d 'Specify the default output color in ANSI escape codes'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path options' -r -s v -l verbosity -d 'Log level (debug, info, warn, error, fatal, panic)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run'   -l cache-artifacts -d 'Set to true to enable caching of artifacts'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run' -r  -l cache-file -d 'Specify the location of the cache file (default $HOME/.skaffold/cache)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run'   -l cleanup -d 'Delete deployments after dev or debug mode is interrupted'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run' -r -s c -l config -d 'File for global configurations (defaults to $HOME/.skaffold/config)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run' -r -s d -l default-repo -d 'Default repository value (overrides global config)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run'   -l enable-rpc -d 'Enable gRPC for exposing Skaffold events (true by default for `skaffold dev`)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run' -r -s f -l filename -d 'Filename or URL to the pipeline file'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run'   -l force -d 'Recreate kubernetes resources if necessary for deployment (warning: might cause downtime!)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run' -r  -l insecure-registry -d 'Target registries for built images which are not secure'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run' -r  -l kube-context -d 'Deploy to this kubernetes context'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run' -r -s l -l label -d 'Add custom labels to deployed objects. Set multiple times for multiple labels'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run' -r -s n -l namespace -d 'Run deployments in the specified namespace'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run'   -l no-prune -d 'Skip removing images and containers built by Skaffold'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run'   -l no-prune-children -d 'Skip removing layers reused by Skaffold'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run' -r -s p -l profile -d 'Activate profiles by name'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run' -r  -l rpc-http-port -d 'tcp port to expose event REST API over HTTP'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run' -r  -l rpc-port -d 'tcp port to expose event API'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run'   -l skip-tests -d 'Whether to skip the tests after building'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run' -r -s t -l tag -d 'The optional custom tag to use for images which overrides the current Tagger configuration'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run'   -l tail -d 'Stream logs from deployed objects (default false)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run'   -l toot -d 'Emit a terminal beep after the deploy is complete'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run' -r  -l color -d 'Specify the default output color in ANSI escape codes'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path run' -r -s v -l verbosity -d 'Log level (debug, info, warn, error, fatal, panic)'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path version' -r -s o -l output -d 'Format output with go-template. For full struct documentation, see https://godoc.org/github.com/GoogleContainerTools/skaffold/pkg/skaffold/version#Info'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path version' -r  -l color -d 'Specify the default output color in ANSI escape codes'
-complete -c skaffold -f -n '__fish_skaffold_seen_subcommand_path version' -r -s v -l verbosity -d 'Log level (debug, info, warn, error, fatal, panic)'
+
+# Since Fish completions are only loaded once the user triggers them, we trigger them ourselves
+# so we can properly delete any completions provided by another script.
+# Only do this if the program can be found, or else fish may print some errors; besides,
+# the existing completions will only be loaded if the program can be found.
+if type -q "skaffold"
+    # The space after the program name is essential to trigger completion for the program
+    # and not completion of the program name itself.
+    # Also, we use '> /dev/null 2>&1' since '&>' is not supported in older versions of fish.
+    complete --do-complete "skaffold " > /dev/null 2>&1
+end
+
+# Remove any pre-existing completions for the program since we will be handling all of them.
+complete -c skaffold -e
+
+# The call to __skaffold_prepare_completions will setup __skaffold_comp_results
+# which provides the program's completion choices.
+complete -c skaffold -n '__skaffold_prepare_completions' -f -a '$__skaffold_comp_results'
+
