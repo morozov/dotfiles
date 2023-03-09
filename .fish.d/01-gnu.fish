@@ -1,26 +1,13 @@
-# brew install gnu-sed
-if [ -d /usr/local/opt/gnu-sed/libexec/gnubin ]
-    set PATH /usr/local/opt/gnu-sed/libexec/gnubin $PATH
+function __brew_prepend_path --argument prefix package
+    set -l path "$prefix/opt/$package/libexec/gnubin"
+
+    if [ -d $path ]
+        fish_add_path --prepend $path
+    end
 end
 
-if [ -d /opt/homebrew/opt/gnu-sed/libexec/gnubin ]
-    set PATH /opt/homebrew/opt/gnu-sed/libexec/gnubin $PATH
-end
+set -l prefix (brew --prefix)
 
-# brew install grep
-if [ -d /usr/local/opt/grep/libexec/gnubin ]
-    set PATH /usr/local/opt/grep/libexec/gnubin $PATH
-end
-
-if [ -d /opt/homebrew/opt/grep/libexec/gnubin ]
-    set PATH /opt/homebrew/opt/grep/libexec/gnubin $PATH
-end
-
-# brew install coreutils
-if [ -d /usr/local/opt/coreutils/libexec/gnubin ]
-    set PATH /usr/local/opt/coreutils/libexec/gnubin $PATH
-end
-
-if [ -d /opt/homebrew/opt/coreutils/libexec/gnubin ]
-    set PATH /opt/homebrew/opt/coreutils/libexec/gnubin $PATH
+for package in coreutils gnu-sed grep
+    __brew_prepend_path $prefix $package
 end
