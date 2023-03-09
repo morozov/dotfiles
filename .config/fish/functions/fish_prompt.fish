@@ -1,5 +1,5 @@
 function __k8s_context -S
-    grep "current-context:" ~/.kube/config | sed "s/current-context: //"
+    kubesess -c context
 end
 
 function __k8s_context_icon -S
