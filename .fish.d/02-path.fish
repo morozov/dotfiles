@@ -1,1 +1,2 @@
-set PATH $PATH $HOME/.local/bin $HOME/Dropbox/SugarCRM/bin
+fish_add_path --prepend $HOME/.local/bin
+fish_add_path $HOME/Dropbox/SugarCRM/bin
