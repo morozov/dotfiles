@@ -19,7 +19,8 @@
         }
     },
     "terminal.integrated.defaultProfile.osx": "fish",
-    "window.zoomLevel": 0,
     "workbench.editor.highlightModifiedTabs": true,
-    "workbench.editor.untitled.hint": "hidden"
+    "workbench.editor.untitled.hint": "hidden",
+    "git.openRepositoryInParentFolders": "always",
+    "window.zoomLevel": 0
 }
