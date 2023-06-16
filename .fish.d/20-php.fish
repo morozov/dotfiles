@@ -1,7 +1,7 @@
 set -gx __PATH_WITHOUT_PHP $PATH
 
 function __php_get_versions --argument prefix
-    echo "$prefix/opt/php@"* | cut -d@ -f2
+    ls -d "$prefix/opt/php@"* | cut -d@ -f2
 end
 
 function __php_switch --argument prefix v
