@@ -1,0 +1,21 @@
+#!/bin/bash
+
+export HOMEBREW_ACCEPT_EULA=Y
+
+echo "`date`: RUNNING: brew update"
+/usr/local/bin/brew update
+echo "`date`: FINISHED: brew update"
+
+echo
+
+echo "`date`: RUNNING: brew upgrade"
+/usr/local/bin/brew upgrade
+echo "`date`: FINISHED: brew upgrade"
+
+echo
+
+echo "`date`: RUNNING: brew cleanup"
+/usr/local/bin/brew cleanup
+echo "`date`: FINISHED: brew cleanup"
+
+osascript -e 'display notification "Homebrew updated"'
