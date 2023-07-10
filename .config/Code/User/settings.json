@@ -22,5 +22,6 @@
     "workbench.editor.highlightModifiedTabs": true,
     "workbench.editor.untitled.hint": "hidden",
     "git.openRepositoryInParentFolders": "always",
-    "window.zoomLevel": 0
+    "window.zoomLevel": 0,
+    "editor.accessibilitySupport": "off"
 }
