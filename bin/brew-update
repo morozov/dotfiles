@@ -2,20 +2,16 @@
 
 export HOMEBREW_ACCEPT_EULA=Y
 
-(
-    echo "Running: \`brew update\`"
-    brew update
-    echo "Done."
+echo "Running: \`brew update\`"
+brew update
+echo "Done."
+echo
 
-    echo "Running: \`brew upgrade\`"
-    brew upgrade
-    echo "Done."
+echo "Running: \`brew upgrade\`"
+brew upgrade
+echo "Done."
+echo
 
-    echo "Running: \`brew cleanup\`"
-    brew cleanup
-    echo "Done."
-) | while IFS= read -r line; do
-    echo "$(date '+%Y-%m-%d %H:%M:%S.%3N %Z') $line"
-done
-
-osascript -e 'display notification "Homebrew updated"'
+echo "Running: \`brew cleanup\`"
+brew cleanup
+echo "Done."
