@@ -9,6 +9,8 @@
 	name = Sergei Morozov
 	email = morozov@tut.by
 	signingkey = 543AE995!
+[include]
+	path = ~/.gitconfig
 [color]
 	ui = auto
 [alias]
