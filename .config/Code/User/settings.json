@@ -22,6 +22,9 @@
     "workbench.editor.highlightModifiedTabs": true,
     "workbench.editor.untitled.hint": "hidden",
     "git.openRepositoryInParentFolders": "always",
+    "editor.accessibilitySupport": "off",
     "window.zoomLevel": 0,
-    "editor.accessibilitySupport": "off"
+    "code-runner.executorMap": {
+        "python": "python3 -u"
+    }
 }
