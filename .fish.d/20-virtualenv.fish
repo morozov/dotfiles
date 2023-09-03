@@ -5,21 +5,30 @@ function __auto_source_virtualenv \
     return
   end
 
-  set gitdir (git rev-parse --show-toplevel 2>/dev/null)
+  set -l current_dir (pwd)
+  set -l target_file "venv/bin/activate.fish"
 
-  if [ $status -eq 0 ]
-    if test "$VIRTUAL_ENV" = "$gitdir"
+  while true
+    if test "$VIRTUAL_ENV" = "$current_dir"
       return
     end
 
-    if test -e "$gitdir/venv/bin/activate.fish"
-      source "$gitdir/venv/bin/activate.fish"
+    if test -e "$current_dir/$target_file"
+      source "$current_dir/$target_file"
       return
     end
-  end
 
-  if test -n "$VIRTUAL_ENV"
-    deactivate
+    set -l parent_dir (dirname $current_dir)
+
+    if test "$parent_dir" = "$current_dir"
+      if test -n "$VIRTUAL_ENV"
+        deactivate
+      end
+
+      return
+    end
+
+    set current_dir $parent_dir
   end
 end
 
