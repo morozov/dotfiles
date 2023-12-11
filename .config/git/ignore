@@ -1,5 +1,4 @@
 *.code-workspace
 .DS_Store
 .idea
-.phpbrewrc
 .vscode
