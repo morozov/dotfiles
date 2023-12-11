@@ -26,5 +26,6 @@
     "window.zoomLevel": 0,
     "code-runner.executorMap": {
         "python": "python3 -u"
-    }
+    },
+    "update.showReleaseNotes": false
 }
