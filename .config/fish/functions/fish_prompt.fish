@@ -1,18 +1,3 @@
-function __k8s_context -S
-    kubesess -c context
-end
-
-function __k8s_context_icon -S
-    switch $argv[1]
-    case "*prod"
-        echo 🔴
-    case "*qa" "*stage" "*stg"
-        echo 🟡
-    case "*"
-        echo 🟢
-    end
-end
-
 function __git_is_repo
     type -q git
     or return 1
@@ -73,12 +58,6 @@ function __git_ahead -S
     else if [ $behind -eq 1 ]
         echo "↓"
     end
-end
-
-function iterm2_print_user_vars
-    set -l context (__k8s_context)
-    set -l icon (__k8s_context_icon $context)
-    iterm2_set_user_var kubeContext (string join " " $icon $context)
 end
 
 function fish_prompt
