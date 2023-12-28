@@ -8,6 +8,6 @@ end
 
 set -l prefix (brew --prefix)
 
-for package in coreutils gnu-sed grep
+for package in coreutils gnu-sed grep make
     __brew_prepend_path $prefix $package
 end
