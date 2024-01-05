@@ -76,7 +76,7 @@ function fish_prompt
         set arrow_color (set_color yellow)
     end
 
-    set -l arrow "→"
+    set -l arrow "➜"
     if fish_is_root_user
         set arrow "#"
     end
