@@ -1,0 +1,15 @@
+[character]
+success_symbol = '[➜](bold green)'
+error_symbol = '[➜](bold red)'
+
+[kubernetes]
+disabled = false
+
+[java]
+disabled = true
+
+[gradle]
+disabled = true
+
+[aws]
+disabled = true
