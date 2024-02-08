@@ -60,6 +60,12 @@ function __git_ahead -S
     end
 end
 
+function __git_stash -S
+    if git rev-list --walk-reflogs --count refs/stash > /dev/null 2>&1
+        echo ≡
+    end
+end
+
 function fish_prompt
     set -l __last_command_exit_status $status
 
@@ -84,7 +90,7 @@ function fish_prompt
     set -l cwd (prompt_pwd)
 
     if __git_is_repo
-        set repo_info " (" (set_color (__git_color)) (__git_branch_name) $normal (__git_ahead) ")"
+        set repo_info " (" (set_color (__git_color)) (__git_branch_name) $normal (__git_stash) (__git_ahead) ")"
     end
 
     echo -n -s $arrow_color $arrow $normal " " $cwd $repo_info " "
