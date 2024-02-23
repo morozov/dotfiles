@@ -16,10 +16,13 @@ function git-pr-get-param() {
 
 set -eo pipefail
 
-ORIGIN_USER=$(git-pr-get-param origin 1)
+ORIGIN_REMOTE=origin
+UPSTREAM_REMOTE="$(git remote | grep upstream || echo origin)"
+
+ORIGIN_USER=$(git-pr-get-param "$ORIGIN_REMOTE" 1)
 ORIGIN_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-UPSTREAM_USER=$(git-pr-get-param upstream 1)
-UPSTREAM_REPO=$(git-pr-get-param upstream 2)
+UPSTREAM_USER=$(git-pr-get-param "$UPSTREAM_REMOTE" 1)
+UPSTREAM_REPO=$(git-pr-get-param "$UPSTREAM_REMOTE" 2)
 
 if [[ ! -z "$1" ]]; then
     COMPARISON_BASE="$1..."
