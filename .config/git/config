@@ -38,3 +38,5 @@
 	ff = only
 [push]
 	autoSetupRemote = true
+[init]
+	defaultBranch = main
