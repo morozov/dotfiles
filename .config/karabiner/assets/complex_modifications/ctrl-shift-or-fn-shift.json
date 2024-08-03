@@ -1,154 +1,149 @@
 {
-  "title": "Language Toggler",
-  "rules": [
+  "description": "Switch between RU ↔ EN ((Fn or Left Ctrl) + Left Shift)",
+  "manipulators": [
     {
-      "description": "Switch between EN ↔ RU (Fn + Left Shift or Left Ctrl + Left Shift)",
-      "manipulators": [
+      "conditions": [
         {
-          "conditions": [
+          "input_sources": [
             {
-              "input_sources": [
-                {
-                  "language": "en"
-                }
-              ],
-              "type": "input_source_if"
+              "language": "en"
             }
           ],
-          "from": {
-            "key_code": "left_shift",
-            "modifiers": {
-              "mandatory": [
-                "fn"
-              ]
-            }
-          },
-          "to": [
-            {
-              "key_code": "left_shift",
-              "modifiers": [
-                "fn"
-              ]
-            }
-          ],
-          "to_if_alone": [
-            {
-              "select_input_source": {
-                "language": "ru"
-              }
-            }
-          ],
-          "type": "basic"
-        },
-        {
-          "conditions": [
-            {
-              "input_sources": [
-                {
-                  "language": "en"
-                }
-              ],
-              "type": "input_source_if"
-            }
-          ],
-          "from": {
-            "key_code": "left_shift",
-            "modifiers": {
-              "mandatory": [
-                "left_control"
-              ]
-            }
-          },
-          "to": [
-            {
-              "key_code": "left_shift",
-              "modifiers": [
-                "left_control"
-              ]
-            }
-          ],
-          "to_if_alone": [
-            {
-              "select_input_source": {
-                "language": "ru"
-              }
-            }
-          ],
-          "type": "basic"
-        },
-        {
-          "conditions": [
-            {
-              "input_sources": [
-                {
-                  "language": "ru"
-                }
-              ],
-              "type": "input_source_if"
-            }
-          ],
-          "from": {
-            "key_code": "left_shift",
-            "modifiers": {
-              "mandatory": [
-                "fn"
-              ]
-            }
-          },
-          "to": [
-            {
-              "key_code": "left_shift",
-              "modifiers": [
-                "fn"
-              ]
-            }
-          ],
-          "to_if_alone": [
-            {
-              "select_input_source": {
-                "language": "en"
-              }
-            }
-          ],
-          "type": "basic"
-        },
-        {
-          "conditions": [
-            {
-              "input_sources": [
-                {
-                  "language": "ru"
-                }
-              ],
-              "type": "input_source_if"
-            }
-          ],
-          "from": {
-            "key_code": "left_shift",
-            "modifiers": {
-              "mandatory": [
-                "left_control"
-              ]
-            }
-          },
-          "to": [
-            {
-              "key_code": "left_shift",
-              "modifiers": [
-                "left_control"
-              ]
-            }
-          ],
-          "to_if_alone": [
-            {
-              "select_input_source": {
-                "language": "en"
-              }
-            }
-          ],
-          "type": "basic"
+          "type": "input_source_if"
         }
-      ]
+      ],
+      "from": {
+        "key_code": "left_shift",
+        "modifiers": {
+          "mandatory": [
+            "fn"
+          ]
+        }
+      },
+      "to": [
+        {
+          "key_code": "left_shift",
+          "modifiers": [
+            "fn"
+          ]
+        }
+      ],
+      "to_if_alone": [
+        {
+          "select_input_source": {
+            "language": "ru"
+          }
+        }
+      ],
+      "type": "basic"
+    },
+    {
+      "conditions": [
+        {
+          "input_sources": [
+            {
+              "language": "en"
+            }
+          ],
+          "type": "input_source_if"
+        }
+      ],
+      "from": {
+        "key_code": "left_shift",
+        "modifiers": {
+          "mandatory": [
+            "left_control"
+          ]
+        }
+      },
+      "to": [
+        {
+          "key_code": "left_shift",
+          "modifiers": [
+            "left_control"
+          ]
+        }
+      ],
+      "to_if_alone": [
+        {
+          "select_input_source": {
+            "language": "ru"
+          }
+        }
+      ],
+      "type": "basic"
+    },
+    {
+      "conditions": [
+        {
+          "input_sources": [
+            {
+              "language": "ru"
+            }
+          ],
+          "type": "input_source_if"
+        }
+      ],
+      "from": {
+        "key_code": "left_shift",
+        "modifiers": {
+          "mandatory": [
+            "fn"
+          ]
+        }
+      },
+      "to": [
+        {
+          "key_code": "left_shift",
+          "modifiers": [
+            "fn"
+          ]
+        }
+      ],
+      "to_if_alone": [
+        {
+          "select_input_source": {
+            "language": "en"
+          }
+        }
+      ],
+      "type": "basic"
+    },
+    {
+      "conditions": [
+        {
+          "input_sources": [
+            {
+              "language": "ru"
+            }
+          ],
+          "type": "input_source_if"
+        }
+      ],
+      "from": {
+        "key_code": "left_shift",
+        "modifiers": {
+          "mandatory": [
+            "left_control"
+          ]
+        }
+      },
+      "to": [
+        {
+          "key_code": "left_shift",
+          "modifiers": [
+            "left_control"
+          ]
+        }
+      ],
+      "to_if_alone": [
+        {
+          "select_input_source": {
+            "language": "en"
+          }
+        }
+      ],
+      "type": "basic"
     }
   ]
 }
