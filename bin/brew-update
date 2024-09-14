@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eou pipefail
+
 export HOMEBREW_ACCEPT_EULA=Y
 
 echo "Running: \`brew update\`"
