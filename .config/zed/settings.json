@@ -20,5 +20,6 @@
     "light": "One Light",
     "dark": "One Dark"
   },
-  "show_whitespaces": "all"
+  "show_whitespaces": "all",
+  "soft_wrap": "none"
 }
