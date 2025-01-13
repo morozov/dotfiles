@@ -27,5 +27,12 @@
     "code-runner.executorMap": {
         "python": "python3 -u"
     },
-    "update.showReleaseNotes": false
+    "update.showReleaseNotes": false,
+
+    "editor.smoothScrolling": true,
+    "editor.cursorBlinking": "smooth",
+    "editor.cursorSmoothCaretAnimation": "on",
+    "workbench.list.smoothScrolling": true,
+    "terminal.integrated.smoothScrolling": true,
+    "terminal.integrated.cursorBlinking": true
 }
