@@ -40,3 +40,5 @@
 	default = upstream
 [init]
 	defaultBranch = main
+[advice]
+	detachedHead = false
