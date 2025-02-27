@@ -21,5 +21,6 @@
     "dark": "Material Theme Darker High Contrast"
   },
   "show_whitespaces": "all",
-  "soft_wrap": "none"
+  "soft_wrap": "none",
+  "scroll_beyond_last_line": "off"
 }
