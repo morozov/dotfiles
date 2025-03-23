@@ -23,6 +23,8 @@
 [rebase]
 	abbreviateCommands = true
 	missingCommitsCheck = error
+	autostash = true
+	autosquash = true
 [commit]
 	gpgsign = true
 [remote "origin"]
@@ -42,3 +44,7 @@
 	defaultBranch = main
 [advice]
 	detachedHead = false
+[fetch]
+	prune = true
+[rerere]
+	enabled = true
