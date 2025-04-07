@@ -18,6 +18,7 @@
 [log]
 	decorate = short
 [diff]
+	algorithm = patience
 	colorMoved = default
 	compactionHeuristic = true
 [rebase]
@@ -33,6 +34,12 @@
 	insteadOf = https://git.heroku.com/
 [url "git@github.com:"]
 	insteadOf = https://github.com/
+[column]
+	ui = auto
+[branch]
+	sort = -committerdate
+[tag]
+	sort = version:refname
 [status]
 	relativePaths = true
 [pull]
@@ -46,5 +53,7 @@
 	detachedHead = false
 [fetch]
 	prune = true
+	all = true
 [rerere]
 	enabled = true
+	autoupdate = true
