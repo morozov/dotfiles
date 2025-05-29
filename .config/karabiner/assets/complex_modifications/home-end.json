@@ -1,0 +1,109 @@
+{
+  "description": "Bind Home/End to Cmd+Left/Right Arrow",
+  "manipulators": [
+    {
+      "type": "basic",
+      "from": {
+        "key_code": "home"
+      },
+      "to": [
+        {
+          "key_code": "left_arrow",
+          "modifiers": [
+            "left_command"
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "type": "frontmost_application_if",
+          "bundle_identifiers": [
+            "^com\\.tinyspeck\\.slackmacgap$",
+            "^ru\\.keepcoder\\.Telegram$"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "basic",
+      "from": {
+        "key_code": "home",
+        "modifiers": {
+          "mandatory": [
+            "left_shift"
+          ]
+        }
+      },
+      "to": [
+        {
+          "key_code": "left_arrow",
+          "modifiers": [
+            "left_command",
+            "left_shift"
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "type": "frontmost_application_if",
+          "bundle_identifiers": [
+            "^com\\.tinyspeck\\.slackmacgap$",
+            "^ru\\.keepcoder\\.Telegram$"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "basic",
+      "from": {
+        "key_code": "end"
+      },
+      "to": [
+        {
+          "key_code": "right_arrow",
+          "modifiers": [
+            "left_command"
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "type": "frontmost_application_if",
+          "bundle_identifiers": [
+            "^com\\.tinyspeck\\.slackmacgap$",
+            "^ru\\.keepcoder\\.Telegram$"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "basic",
+      "from": {
+        "key_code": "end",
+        "modifiers": {
+          "mandatory": [
+            "left_shift"
+          ]
+        }
+      },
+      "to": [
+        {
+          "key_code": "right_arrow",
+          "modifiers": [
+            "left_command",
+            "left_shift"
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "type": "frontmost_application_if",
+          "bundle_identifiers": [
+            "^com\\.tinyspeck\\.slackmacgap$",
+            "^ru\\.keepcoder\\.Telegram$"
+          ]
+        }
+      ]
+    }
+  ]
+}
