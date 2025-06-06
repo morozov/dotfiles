@@ -18,6 +18,7 @@
         {
           "type": "frontmost_application_if",
           "bundle_identifiers": [
+            "^com\\.google\\.Chrome$",
             "^com\\.tinyspeck\\.slackmacgap$",
             "^ru\\.keepcoder\\.Telegram$"
           ]
@@ -47,6 +48,7 @@
         {
           "type": "frontmost_application_if",
           "bundle_identifiers": [
+            "^com\\.google\\.Chrome$",
             "^com\\.tinyspeck\\.slackmacgap$",
             "^ru\\.keepcoder\\.Telegram$"
           ]
@@ -70,6 +72,7 @@
         {
           "type": "frontmost_application_if",
           "bundle_identifiers": [
+            "^com\\.google\\.Chrome$",
             "^com\\.tinyspeck\\.slackmacgap$",
             "^ru\\.keepcoder\\.Telegram$"
           ]
@@ -99,6 +102,7 @@
         {
           "type": "frontmost_application_if",
           "bundle_identifiers": [
+            "^com\\.google\\.Chrome$",
             "^com\\.tinyspeck\\.slackmacgap$",
             "^ru\\.keepcoder\\.Telegram$"
           ]
