@@ -71,6 +71,11 @@ function fish_prompt
     set -l tokens
     set -l normal (set_color normal)
 
+    if set -q SSH_TTY
+        set -l blue (set_color blue)
+        set -a tokens $blue$USER$normal@$blue(prompt_hostname)$normal
+    end
+
     set -l arrow_color
     if test $__last_command_exit_status != 0
         set arrow_color (set_color red)
