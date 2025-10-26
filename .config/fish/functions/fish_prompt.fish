@@ -68,11 +68,7 @@ end
 
 function fish_prompt
     set -l __last_command_exit_status $status
-
-    if not set -q -g __fish_arrow_functions_defined
-        set -g __fish_arrow_functions_defined
-    end
-
+    set -l tokens
     set -l normal (set_color normal)
 
     set -l arrow_color
@@ -87,11 +83,13 @@ function fish_prompt
         set arrow "#"
     end
 
-    set -l cwd (prompt_pwd)
+    set -a tokens $arrow_color$arrow$normal
+    set -a tokens (prompt_pwd)
 
     if __git_is_repo
-        set repo_info " (" (set_color (__git_color)) (__git_branch_name) $normal (__git_stash) (__git_ahead) ")"
+        set -l parts "(" (set_color (__git_color)) (__git_branch_name) $normal (__git_stash) (__git_ahead) ")"
+        set -a tokens (string join "" $parts)
     end
 
-    echo -n -s $arrow_color $arrow $normal " " $cwd $repo_info " "
+    echo -ns $tokens" "
 end
