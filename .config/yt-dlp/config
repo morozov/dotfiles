@@ -1,1 +1,2 @@
--S ext:mp4
+--format-sort ext:mp4
+--format "bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]/best[ext=mp4]"
