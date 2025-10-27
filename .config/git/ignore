@@ -1,6 +1,7 @@
 *.code-workspace
 .DS_Store
 .idea
+.sdkmanrc
 .terraform.lock.hcl
 .vs
 .vscode
