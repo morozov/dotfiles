@@ -5,6 +5,7 @@
     "editor.fontFamily": "JetBrains Mono",
     "editor.fontLigatures": true,
     "editor.renderWhitespace": "all",
+    "editor.stickyScroll.enabled": false,
     "workbench.startupEditor": "newUntitledFile",
     "extensions.ignoreRecommendations": true,
     "files.associations": {
