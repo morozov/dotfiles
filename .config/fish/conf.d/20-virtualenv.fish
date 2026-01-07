@@ -6,7 +6,7 @@ function __auto_source_virtualenv \
   end
 
   set -l current_dir (pwd)
-  set -l target_file "venv/bin/activate.fish"
+  set -l target_file ".venv/bin/activate.fish"
 
   while true
     if test "$VIRTUAL_ENV" = "$current_dir"
