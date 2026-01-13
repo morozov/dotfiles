@@ -3,7 +3,7 @@ if which mc > /dev/null 2>&1
         set SHELL_PID %self
         set MC_PWD_FILE "/tmp/mc-$USER-$SHELL_PID.pwd"
 
-        command mc -P $MC_PWD_FILE $argv
+        command mc -u -P $MC_PWD_FILE $argv
 
         if test -r $MC_PWD_FILE
 
