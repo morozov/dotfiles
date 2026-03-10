@@ -1,0 +1,13 @@
+# Font
+font-family = TX-02
+font-size = 16.0
+
+# Window
+window-width = 108
+window-height = 32
+window-colorspace = display-p3
+background-opacity = 0.95
+background-blur = 10
+
+macos-titlebar-style = transparent
+macos-titlebar-proxy-icon = hidden
