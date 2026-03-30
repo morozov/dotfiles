@@ -1,3 +1,4 @@
 --map-syntax "WORKSPACE:Python"
 --map-syntax "*.env:DotENV"
 --style plain
+--pager "less -RFX"
