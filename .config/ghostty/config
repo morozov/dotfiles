@@ -11,3 +11,6 @@ background-blur = 10
 
 macos-titlebar-style = transparent
 macos-titlebar-proxy-icon = hidden
+
+# Key bindings
+keybind = opt+backspace=text:\x17
