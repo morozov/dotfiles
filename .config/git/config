@@ -57,3 +57,8 @@
 [rerere]
 	enabled = true
 	autoupdate = true
+[hook "rule72"]
+	# Trailing '#' discards the arguments git appends as "$@"; without it the
+	# mv gets a third argument and fails. A missing rule72 aborts the commit.
+	command = "rule72 < \"$1\" > \"$1.r72\" && mv \"$1.r72\" \"$1\" || { rm -f \"$1.r72\"; false; } #"
+	event = commit-msg
