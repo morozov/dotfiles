@@ -1,5 +1,4 @@
 *.code-workspace
-.claude
 .DS_Store
 .idea
 .junie
