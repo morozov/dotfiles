@@ -6,8 +6,8 @@ font-size = 16.0
 window-width = 108
 window-height = 32
 window-colorspace = display-p3
-background-opacity = 0.95
-background-blur = 10
+background-blur = macos-glass-regular
+background-opacity = 0.8
 
 macos-titlebar-style = transparent
 macos-titlebar-proxy-icon = hidden
